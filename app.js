@@ -112,7 +112,13 @@ function windArrowSvg(deg) {
 }
 
 function cmRange(minh, mh) {
-  const lo = Math.round(minh * 100), hi = Math.round(mh * 100);
+  if (!S.cfg.metric) {
+    const lo = Math.round(minh * 3.281 * 10) / 10;
+    const hi = Math.round(mh * 3.281 * 10) / 10;
+    return lo === hi || lo < 0.1 ? `${hi} ft` : `${lo}–${hi} ft`;
+  }
+  const r5 = v => Math.max(0, Math.round(v * 100 / 5) * 5);
+  const lo = r5(minh), hi = r5(mh);
   return lo === hi || lo === 0 ? `${hi} ס"מ` : `${lo}–${hi} ס"מ`;
 }
 
@@ -213,8 +219,15 @@ function updateHomeHero(b, data) {
 
 function updateNow(b, cur) {
   const cls = wClass(cur.wd2, b.offDir), wl = WL[cls];
-  const cm = Math.round(cur.wh * 100);
-  el('now-h').innerHTML = `<span class="now-cm">${cm}</span><span class="now-unit">ס"מ</span>`;
+  let nowVal, nowUnit;
+  if (S.cfg.metric) {
+    nowVal = Math.max(0, Math.round(cur.wh * 100 / 5) * 5);
+    nowUnit = 'ס"מ';
+  } else {
+    nowVal = (cur.wh * 3.281).toFixed(1);
+    nowUnit = 'ft';
+  }
+  el('now-h').innerHTML = `<span class="now-cm">${nowVal}</span><span class="now-unit">${nowUnit}</span>`;
   el('now-w').innerHTML = windArrowSvg(cur.wd2) + `<span>${Math.round(cur.ws)} קמ"ש</span>`;
   el('now-c').innerHTML = `<span class="now-cond-badge" style="background:${wl.c}20;color:${wl.c};">${heightLabel(cur.wh)}</span>`;
   el('now-t').textContent = new Intl.DateTimeFormat('he-IL',{hour:'2-digit',minute:'2-digit'}).format(new Date());
@@ -518,6 +531,13 @@ function switchChart(mode) {
 /* ══════════════════════════════════════
    TABS
 ══════════════════════════════════════ */
+function reRenderActiveTab() {
+  const t = S.currentTab;
+  if (t==='home') renderHome();
+  else if (t==='beaches') renderBeaches();
+  else if (t==='saved') renderSaved();
+}
+
 function setTab(id) {
   S.currentTab = id;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -527,6 +547,13 @@ function setTab(id) {
   if (id==='beaches') renderBeaches();
   if (id==='saved') renderSaved();
   if (id==='profile') renderProfile();
+}
+
+function reRenderActiveTab() {
+  const t = S.currentTab;
+  if (t==='home') renderHome();
+  else if (t==='beaches') renderBeaches();
+  else if (t==='saved') renderSaved();
 }
 
 /* ══════════════════════════════════════
@@ -601,7 +628,7 @@ document.addEventListener('click', function(e) {
       cfg('metric', !S.cfg.metric);
       el2.textContent = S.cfg.metric ? 'מטרים' : 'פיט';
       el('unit-chk').checked = !S.cfg.metric;
-      if (S.currentTab==='home') renderHome();
+      reRenderActiveTab();
       break;
     }
     case 'testAlert': {
@@ -616,7 +643,7 @@ document.addEventListener('click', function(e) {
 document.getElementById('unit-chk').addEventListener('change', e => {
   cfg('metric', !e.target.checked);
   document.querySelector('.unit-btn').textContent = S.cfg.metric ? 'מטרים' : 'פיט';
-  if (S.currentTab==='home') renderHome();
+  reRenderActiveTab();
 });
 document.getElementById('alert-toggle').addEventListener('change', async e => {
   const ok = await enableAlerts(e.target.checked);
@@ -642,4 +669,5 @@ document.querySelector('.unit-btn').textContent = S.cfg.metric ? 'מטרים' : 
 // Start
 renderHome();
 setInterval(checkAlert, 30 * 60 * 1000);
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+const isWKWebView = !!(window.webkit?.messageHandlers);
+if (!isWKWebView && 'serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
