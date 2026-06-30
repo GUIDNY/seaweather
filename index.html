@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>WaveWatch IL 🌊</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="styles.css?v=4"/>
+</head>
+<body>
+
+<header id="topbar">
+  <div class="tb-inner">
+    <div class="tb-brand">🌊 <span>WaveWatch<b>IL</b></span></div>
+    <nav class="tb-nav">
+      <button class="tnb active" data-action="tab" data-id="home">🏠 בית</button>
+      <button class="tnb" data-action="tab" data-id="beaches">🏖️ חופים</button>
+      <button class="tnb" data-action="tab" data-id="saved">⭐ שמורים</button>
+      <button class="tnb" data-action="tab" data-id="profile">👤 פרופיל</button>
+    </nav>
+    <button class="unit-btn" data-action="toggleUnit">מטרים</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ══ HOME ══ -->
+  <div id="tab-home" class="tab active">
+    <!-- Selected beach forecast -->
+    <div id="home-hero" class="home-hero">
+      <img id="hero-img" src="" alt=""/>
+      <div class="hero-ov"></div>
+      <div class="hero-content">
+        <div class="hero-left">
+          <span class="micro">תחזית לחוף הנבחר</span>
+          <h1 id="hero-name">—</h1>
+          <p id="hero-desc" class="hero-desc">טוען...</p>
+        </div>
+        <div id="hero-ring" class="ring-wrap large"></div>
+      </div>
+    </div>
+
+    <!-- Now stats -->
+    <div class="container">
+      <div id="now-bar" class="now-bar card">
+        <div class="now-item"><span class="micro">גלים</span><strong id="now-h" class="num">—</strong></div>
+        <div class="now-sep"></div>
+        <div class="now-item"><span class="micro">רוח</span><strong id="now-w" class="num">—</strong></div>
+        <div class="now-sep"></div>
+        <div class="now-item"><span class="micro">תנאים</span><strong id="now-c">—</strong></div>
+        <div class="now-sep"></div>
+        <div class="now-item"><span class="micro">עדכון</span><small id="now-t">—</small></div>
+      </div>
+
+      <!-- 7-day forecast table -->
+      <div class="card mt16">
+        <div class="card-hd">
+          <div><span class="micro">Forecast</span><h2>תחזית שבועית — <span id="fc-name"></span></h2></div>
+          <button class="text-btn" data-action="open" data-id="__current">פרטים מלאים ←</button>
+        </div>
+        <div class="fc-head row5"><span>יום</span><span>גובה</span><span>מצב</span><span>רוח</span><span>ציון</span></div>
+        <div id="fc-list"></div>
+      </div>
+
+      <!-- Beaches mini-list -->
+      <div class="mt24">
+        <div class="sec-title">כל החופים עכשיו</div>
+        <div id="home-beach-list" class="beach-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BEACHES ══ -->
+  <div id="tab-beaches" class="tab">
+    <div class="container">
+      <div class="sec-title mt8">כל החופים</div>
+      <label class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="beach-search" type="search" placeholder="חפש חוף..."/>
+      </label>
+      <div id="beach-grid" class="beach-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ SAVED ══ -->
+  <div id="tab-saved" class="tab">
+    <div class="container">
+      <div class="sec-title mt8">החופים שלי ⭐</div>
+      <div id="saved-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ PROFILE ══ -->
+  <div id="tab-profile" class="tab">
+    <div class="container narrow">
+      <div class="sec-title mt8">הגדרות ופרופיל</div>
+
+      <!-- Primary beach -->
+      <div class="card pcard">
+        <div class="micro mb6">חוף ראשי לתחזית</div>
+        <div id="spot-list" class="spot-chips"></div>
+      </div>
+
+      <!-- Units -->
+      <div class="card pcard">
+        <div class="micro mb6">יחידות מדידה</div>
+        <div class="toggle-row">
+          <span>מטרים (מ׳)</span>
+          <label class="switch">
+            <input id="unit-chk" type="checkbox"/>
+            <span class="slider"></span>
+          </label>
+          <span>פיט (ft)</span>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="card pcard">
+        <div class="micro mb6">התראות גלישה</div>
+        <div class="toggle-row mb12">
+          <span>הפעל התראות</span>
+          <label class="switch">
+            <input id="alert-toggle" type="checkbox"/>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="field-grid">
+          <label class="field">
+            <span>גובה מינימום</span>
+            <input id="alert-height" type="number" min="0.2" max="5" step="0.1" value="0.8"/>
+          </label>
+          <label class="field">
+            <span>חוף להתראה</span>
+            <select id="alert-spot"></select>
+          </label>
+          <label class="field">
+            <span>משעה</span>
+            <input id="alert-start" type="time" value="06:00"/>
+          </label>
+          <label class="field">
+            <span>עד שעה</span>
+            <input id="alert-end" type="time" value="20:00"/>
+          </label>
+        </div>
+        <button class="primary-btn" data-action="testAlert">🔔 שלח התראת בדיקה</button>
+        <div id="alert-log" class="alert-log">התראות כבויות.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ BEACH DETAIL OVERLAY ══ -->
+<div id="detail" class="detail hidden" aria-hidden="true">
+  <div id="detail-inner"></div>
+</div>
+
+<!-- ══ BOTTOM NAV (mobile) ══ -->
+<nav id="bottomnav">
+  <button class="bnb active" data-action="tab" data-id="home">
+    <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
+    <span>בית</span>
+  </button>
+  <button class="bnb" data-action="tab" data-id="beaches">
+    <svg viewBox="0 0 24 24"><path d="M4 17c2.5-2 5-2 7.5 0s5 2 8.5 0"/><path d="M4 12c2.5-2 5-2 7.5 0s5 2 8.5 0"/><path d="M5 7h14"/></svg>
+    <span>חופים</span>
+  </button>
+  <button class="bnb" data-action="tab" data-id="saved">
+    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span>שמורים</span>
+  </button>
+  <button class="bnb" data-action="tab" data-id="profile">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>פרופיל</span>
+  </button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js?v=4"></script>
+</body>
+</html>
