@@ -113,6 +113,14 @@ function windArrowSvg(deg, col) {
   return `<svg class="w-arrow" viewBox="0 0 20 20" style="transform:rotate(${rot}deg)"><polygon points="10,1 14.5,15 10,12.5 5.5,15" fill="${col||'currentColor'}"/></svg>`;
 }
 
+function surfLabel(mh) {
+  const cm = mh * 100;
+  if (cm < 80)  return { lvl:0, emoji:'🚫', title:'לא מתאים לגלישה',    desc:'הגלים נמוכים מדי לגלישה. יום טוב לרחצה ולינק בחוף.',                       color:'#6b7c93' };
+  if (cm < 120) return { lvl:1, emoji:'🏄', title:'מתאים לסאפ ומתחילים', desc:'גלים קטנים וידידותיים. מושלם לסאפ, גלשן גדול ולמי שמתחיל ללמוד לגלוש.', color:'#ffd166' };
+  if (cm < 200) return { lvl:2, emoji:'🏄‍♂️', title:'שווה לכולם',       desc:'תנאים טובים לכל הרמות. גלים מאורגנים ונאים — הגיע הזמן לכנס למים!',     color:'#00b4d8' };
+  return               { lvl:3, emoji:'🔥', title:'מנוסים בלבד',         desc:'גלים גבוהים ועוצמתיים. מומלץ לגולשים מנוסים בלבד. יש לנקוט זהירות.',    color:'#06d6a0' };
+}
+
 function cmRange(minh, mh) {
   if (!S.cfg.metric) {
     const lo = Math.round(minh * 3.281 * 10) / 10;
@@ -237,10 +245,11 @@ function updateNow(b, cur) {
 
 function renderFcTable(b, d7) {
   el('fc-list').innerHTML = d7.map((d) => {
-    const sc=d.sc, col=scoreColor(sc), wl=WL[wClass(d.mwd,b.offDir)];
+    const sc=d.sc, col=scoreColor(sc), surf=surfLabel(d.mh);
     const rowBg = sc>=7?'#e8f9f2':sc>=5.5?'#fffbf0':sc<3?'#fdf2f2':'';
     const rowBdr = sc>=7?'#06d6a0':sc>=5.5?'#ffd166':sc<3?'#ef476f':'#dee8ef';
-    return `<div class="fc-row" style="background:${rowBg};border-right:4px solid ${rowBdr};" data-action="open" data-id="${b.id}">
+    return `<div class="fc-row" style="background:${rowBg};border-right:4px solid ${rowBdr};cursor:pointer;"
+      data-action="forecastPopup" data-beach="${b.id}" data-date="${d.date}" data-mh="${d.mh}" data-minh="${d.minh}" data-sc="${sc}">
       <div class="fc-day">
         <span class="fc-day-name">${dayLabel(d.date)}</span>
         <span class="fc-period">${d.mp.toFixed(0)}שנ׳</span>
@@ -256,7 +265,7 @@ function renderFcTable(b, d7) {
       </div>
       <div class="fc-score-col">
         <span class="score-chip" style="background:${col}22;color:${col};font-size:14px;padding:4px 10px;">${sc.toFixed(1)}</span>
-        <span style="font-size:10px;color:#888;margin-top:2px;display:block;">${scoreLbl(sc)}</span>
+        <span class="fc-surf-emoji" title="${surf.title}">${surf.emoji}</span>
       </div>
     </div>`;
   }).join('');
@@ -813,11 +822,37 @@ document.addEventListener('click', function(e) {
     case 'syncCloud':    syncCloud();    break;
     case 'signOut':      clearAuth(); renderProfile(); break;
     case 'deleteAccount': deleteAccount(); break;
+    case 'forecastPopup': {
+      const { beach: bId, date, mh: mhStr, minh: minhStr } = el2.dataset;
+      const mh = parseFloat(mhStr), minh = parseFloat(minhStr);
+      const b2 = beach(bId), surf = surfLabel(mh);
+      const dayName = dayLabel(date);
+      el('popup-emoji').textContent = surf.emoji;
+      el('popup-title').textContent = surf.title;
+      el('popup-title').style.color = surf.color;
+      el('popup-meta').textContent = `${dayName} · ${cmRange(minh, mh)} · ${heightLabel(mh)} · ${b2.name}`;
+      el('popup-desc').textContent = surf.desc;
+      el('popup-open-btn').dataset.id = bId;
+      // highlight active level
+      el('surf-popup').querySelectorAll('.popup-lvl').forEach((lvl, i) => {
+        lvl.classList.toggle('active', i === surf.lvl);
+      });
+      el('surf-popup').classList.remove('hidden');
+      break;
+    }
+    case 'closePopup':
+      el('surf-popup').classList.add('hidden');
+      break;
+    case 'openFromPopup':
+      el('surf-popup').classList.add('hidden');
+      openBeach(el2.dataset.id);
+      break;
   }
 });
 
-// Enter key in email/password fields
+// Keyboard shortcuts
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') el('surf-popup')?.classList.add('hidden');
   if (e.key === 'Enter' && (e.target.id === 'auth-email' || e.target.id === 'auth-password' || e.target.id === 'auth-name')) {
     submitEmailAuth();
   }

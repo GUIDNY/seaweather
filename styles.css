@@ -388,3 +388,46 @@ button{cursor:pointer;font-family:inherit}
   transition:all .15s;font-family:'Heebo',sans-serif;
 }
 .danger-btn:hover{background:#ef476f;color:#fff}
+
+/* ── SURF POPUP ── */
+.surf-popup{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.surf-popup.hidden{display:none}
+.surf-popup-bg{position:absolute;inset:0;background:rgba(6,26,43,.5);backdrop-filter:blur(3px)}
+.surf-popup-card{
+  position:relative;z-index:1;
+  background:#fff;border-radius:24px 24px 0 0;
+  width:100%;max-width:520px;padding:28px 24px 36px;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.surf-popup-close{
+  position:absolute;top:16px;left:16px;
+  width:32px;height:32px;border-radius:50%;border:none;
+  background:#f0f4f8;color:var(--muted);font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.surf-popup-close:hover{background:var(--line)}
+.popup-emoji{font-size:52px;text-align:center;margin-bottom:10px;line-height:1}
+.popup-title{font-size:22px;font-weight:900;text-align:center;margin-bottom:6px}
+.popup-meta{font-size:14px;color:var(--muted);text-align:center;margin-bottom:14px}
+.popup-desc{font-size:15px;line-height:1.6;text-align:center;color:var(--ink);margin-bottom:20px}
+.popup-levels{
+  display:flex;gap:6px;margin-bottom:20px;
+  overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:none;
+}
+.popup-levels::-webkit-scrollbar{display:none}
+.popup-lvl{
+  flex:1;min-width:70px;padding:8px 6px;border-radius:12px;
+  background:#f0f4f8;font-size:11px;font-weight:700;text-align:center;
+  color:var(--muted);white-space:nowrap;transition:all .15s;
+}
+.popup-lvl.active{background:var(--navy);color:#fff}
+.popup-open-btn{
+  width:100%;padding:14px 0;border:none;border-radius:14px;
+  background:var(--ocean);color:#fff;font-size:15px;font-weight:700;
+  font-family:'Heebo',sans-serif;transition:opacity .15s;
+}
+.popup-open-btn:hover{opacity:.85}
+/* Small suitability emoji on fc-row */
+.fc-surf-emoji{font-size:15px;display:block;text-align:center;margin-top:2px}

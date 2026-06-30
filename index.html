@@ -216,6 +216,25 @@
   <div id="detail-inner"></div>
 </div>
 
+<!-- ══ SURF SUITABILITY POPUP ══ -->
+<div id="surf-popup" class="surf-popup hidden" aria-modal="true" role="dialog">
+  <div class="surf-popup-bg" data-action="closePopup"></div>
+  <div class="surf-popup-card">
+    <button class="surf-popup-close" data-action="closePopup" aria-label="סגור">✕</button>
+    <div id="popup-emoji" class="popup-emoji"></div>
+    <h3 id="popup-title" class="popup-title"></h3>
+    <div id="popup-meta" class="popup-meta"></div>
+    <p id="popup-desc" class="popup-desc"></p>
+    <div class="popup-levels">
+      <div class="popup-lvl" data-active="0">🚫 עד 80ס"מ</div>
+      <div class="popup-lvl" data-active="1">🏄 80–120</div>
+      <div class="popup-lvl" data-active="2">🏄‍♂️ 120–200</div>
+      <div class="popup-lvl" data-active="3">🔥 200+</div>
+    </div>
+    <button id="popup-open-btn" class="popup-open-btn" data-action="openFromPopup">📊 פרטים מלאים</button>
+  </div>
+</div>
+
 <!-- ══ BOTTOM NAV (mobile) ══ -->
 <nav id="bottomnav">
   <button class="bnb active" data-action="tab" data-id="home">
