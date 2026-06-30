@@ -36,10 +36,9 @@ const userKey = sub => `users/${sub.replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
 export async function getUser(sub) {
   try {
     const key = userKey(sub);
-    const token = process.env.BLOB_READ_WRITE_TOKEN;
-    const info = await head(key, { token });
+    const info = await head(key, { token: process.env.BLOB_READ_WRITE_TOKEN });
     if (!info) return null;
-    const res = await fetch(info.url, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(info.url);
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -50,7 +49,7 @@ export async function getUser(sub) {
 export async function putUser(sub, data) {
   const key = userKey(sub);
   return put(key, JSON.stringify(data), {
-    access: 'private',
+    access: 'public',
     token: process.env.BLOB_READ_WRITE_TOKEN,
     contentType: 'application/json',
     addRandomSuffix: false,
