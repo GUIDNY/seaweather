@@ -712,6 +712,64 @@ function renderAccountCard() {
   }
 }
 
+// Email auth state
+let emailAuthMode = 'login'; // 'login' | 'register'
+
+function setAuthTab(tab) {
+  ['apple', 'email'].forEach(t => {
+    const btn = document.querySelector(`.auth-tab[data-tab="${t}"]`);
+    const pane = el(`auth-pane-${t}`);
+    if (btn) btn.classList.toggle('active', t === tab);
+    if (pane) pane.style.display = t === tab ? '' : 'none';
+  });
+}
+
+function setAuthMode(mode) {
+  emailAuthMode = mode;
+  document.querySelectorAll('.auth-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const nameRow = el('auth-name-row');
+  const submitBtn = document.querySelector('.auth-submit-btn');
+  const pwInput = el('auth-password');
+  if (nameRow) nameRow.style.display = mode === 'register' ? '' : 'none';
+  if (submitBtn) submitBtn.textContent = mode === 'register' ? 'הרשמה' : 'כניסה';
+  if (pwInput) pwInput.autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+  const errEl = el('auth-error');
+  if (errEl) errEl.textContent = '';
+}
+
+async function submitEmailAuth() {
+  const email = (el('auth-email')?.value || '').trim();
+  const password = el('auth-password')?.value || '';
+  const name = (el('auth-name')?.value || '').trim();
+  const errEl = el('auth-error');
+
+  if (!email || !password) { if (errEl) errEl.textContent = 'נא למלא אימייל וסיסמה'; return; }
+  if (password.length < 8) { if (errEl) errEl.textContent = 'הסיסמה חייבת להכיל לפחות 8 תווים'; return; }
+
+  const submitBtn = document.querySelector('.auth-submit-btn');
+  if (submitBtn) submitBtn.disabled = true;
+  if (errEl) errEl.textContent = '';
+
+  try {
+    const { token, user } = await apiReq('POST', '/api/auth/email', {
+      action: emailAuthMode, email, password, name: name || undefined,
+    });
+    saveAuth(token, user);
+    cfg('savedIds', user.savedIds);
+    cfg('spotId', user.spotId);
+    cfg('metric', user.metric);
+    renderProfile();
+    renderHome();
+    showSyncStatus('✅ מחובר בהצלחה');
+  } catch(e) {
+    let msg = 'שגיאה — נסה שוב';
+    try { msg = JSON.parse(e.message).error || msg; } catch {}
+    if (errEl) errEl.textContent = msg;
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+}
+
 /* ══════════════════════════════════════
    EVENT DELEGATION (single listener)
 ══════════════════════════════════════ */
@@ -749,9 +807,19 @@ document.addEventListener('click', function(e) {
       }
       break;
     }
+    case 'authTab':    setAuthTab(el2.dataset.tab);    break;
+    case 'authMode':   setAuthMode(el2.dataset.mode);  break;
+    case 'submitEmailAuth': submitEmailAuth(); break;
     case 'syncCloud':    syncCloud();    break;
     case 'signOut':      clearAuth(); renderProfile(); break;
     case 'deleteAccount': deleteAccount(); break;
+  }
+});
+
+// Enter key in email/password fields
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.target.id === 'auth-email' || e.target.id === 'auth-password' || e.target.id === 'auth-name')) {
+    submitEmailAuth();
   }
 });
 
