@@ -3,7 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>WaveWatch IL 🌊</title>
+  <title>Surfy 🦊</title>
+  <meta name="theme-color" content="#0a2540"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="Surfy"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="logo.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -13,7 +18,7 @@
 
 <header id="topbar">
   <div class="tb-inner">
-    <div class="tb-brand">🌊 <span>WaveWatch<b>IL</b></span></div>
+    <div class="tb-brand"><img src="logo.svg" class="brand-logo" alt="Surfy" onerror="this.style.display='none'"><span>Surfy</span></div>
     <nav class="tb-nav">
       <button class="tnb active" data-action="tab" data-id="home">🏠 בית</button>
       <button class="tnb" data-action="tab" data-id="beaches">🏖️ חופים</button>
@@ -34,7 +39,7 @@
       <div class="hero-ov"></div>
       <div class="hero-content">
         <div class="hero-left">
-          <span class="micro">תחזית לחוף הנבחר</span>
+          <span class="micro">תחזית גלים</span>
           <h1 id="hero-name">—</h1>
           <p id="hero-desc" class="hero-desc">טוען...</p>
         </div>

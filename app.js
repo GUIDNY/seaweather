@@ -604,7 +604,7 @@ function checkAlert() {
   const key = `${b.id}-${good.time}-${S.cfg.alertH}`;
   if (key === S.cfg.lastAlertKey) return;
   cfg('lastAlertKey', key);
-  new Notification(`🌊 גלים ב${b.name}`, { body:`${fmtH(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}` });
+  new Notification(`🦊 גלים ב${b.name}`, { body:`${fmtH(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}` });
 }
 
 /* ══════════════════════════════════════
@@ -632,7 +632,7 @@ document.addEventListener('click', function(e) {
       break;
     }
     case 'testAlert': {
-      if (Notification.permission==='granted') new Notification('🌊 WaveWatch',{body:'ככה תיראה התראה כשיש גלים טובים!'});
+      if (Notification.permission==='granted') new Notification('🦊 Surfy',{body:'ככה תיראה התראה כשיש גלים טובים!'});
       else el('alert-log').textContent='הפעל קודם את ההתראות למעלה.';
       break;
     }

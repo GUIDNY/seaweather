@@ -1,0 +1,13 @@
+{
+  "name": "Surfy",
+  "short_name": "Surfy",
+  "description": "תחזית גלים לישראל",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a2540",
+  "theme_color": "#0a2540",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
