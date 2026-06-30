@@ -90,6 +90,32 @@ function dayLabel(isoDate) {
   return DAYS[dt.getDay()];
 }
 
+function heightLabel(mh) {
+  const cm = mh * 100;
+  if (cm < 5)  return 'ים שקט';
+  if (cm < 25) return 'קרסול';
+  if (cm < 50) return 'ברך';
+  if (cm < 80) return 'מותניים';
+  if (cm < 110) return 'חזה';
+  if (cm < 150) return 'כתף';
+  if (cm < 200) return 'ראש';
+  return 'מעל הראש';
+}
+
+function windBgCol(ws) {
+  return ws < 10 ? '#1a9e5c' : ws < 20 ? '#e67e22' : ws < 30 ? '#d35400' : '#c0392b';
+}
+
+function windArrowSvg(deg) {
+  const rot = (deg + 180) % 360;
+  return `<svg class="w-arrow" viewBox="0 0 20 20" style="transform:rotate(${rot}deg)"><polygon points="10,1 14.5,15 10,12.5 5.5,15" fill="white"/></svg>`;
+}
+
+function cmRange(minh, mh) {
+  const lo = Math.round(minh * 100), hi = Math.round(mh * 100);
+  return lo === hi || lo === 0 ? `${hi} ס"מ` : `${lo}–${hi} ס"מ`;
+}
+
 /* ══════════════════════════════════════
    API
 ══════════════════════════════════════ */
@@ -121,13 +147,15 @@ async function fetchBeach(b) {
     dm.get(dk).push(i);
   }
   const d7 = [...dm.entries()].slice(0,7).map(([dk,ix]) => {
-    let mh=0,mp=0,mw=0,mwd=0;
+    let mh=0, minh=Infinity, mp=0, mw=0, mwd=0, avgWd=0, wdCount=0;
     ix.forEach(i => {
       const wh=m.hourly.wave_height[i]??0, ws=f.hourly.wind_speed_10m[i]??0;
-      if(wh>mh){mh=wh;mp=m.hourly.wave_period[i]??0;mwd=f.hourly.wind_direction_10m[i]??0}
-      if(ws>mw) mw=ws;
+      if(wh>0 && wh<minh) minh=wh;
+      if(wh>mh){mh=wh;mp=m.hourly.wave_period[i]??0;}
+      if(ws>mw){mw=ws;mwd=f.hourly.wind_direction_10m[i]??0;}
     });
-    return { date:dk, mh, mp, mw, mwd, sc:score(mh,mp,mw,mwd,b.offDir) };
+    if(minh===Infinity) minh=0;
+    return { date:dk, mh, minh, mp, mw, mwd, sc:score(mh,mp,mw,mwd,b.offDir) };
   });
 
   const cur = {
@@ -185,21 +213,36 @@ function updateHomeHero(b, data) {
 
 function updateNow(b, cur) {
   const cls = wClass(cur.wd2, b.offDir), wl = WL[cls];
-  el('now-h').textContent = fmtH(cur.wh);
-  el('now-w').textContent = `${Math.round(cur.ws)} קמ"ש`;
-  el('now-c').innerHTML = `<span style="color:${wl.c};font-weight:800;">${wl.t}</span>`;
+  const cm = Math.round(cur.wh * 100);
+  el('now-h').innerHTML = `<span class="now-cm">${cm}</span><span class="now-unit">ס"מ</span>`;
+  el('now-w').innerHTML = windArrowSvg(cur.wd2) + `<span>${Math.round(cur.ws)} קמ"ש</span>`;
+  el('now-c').innerHTML = `<span class="now-cond-badge" style="background:${wl.c}20;color:${wl.c};">${heightLabel(cur.wh)}</span>`;
   el('now-t').textContent = new Intl.DateTimeFormat('he-IL',{hour:'2-digit',minute:'2-digit'}).format(new Date());
 }
 
 function renderFcTable(b, d7) {
-  el('fc-list').innerHTML = d7.map(d => {
+  el('fc-list').innerHTML = d7.map((d) => {
     const sc=d.sc, col=scoreColor(sc), wl=WL[wClass(d.mwd,b.offDir)];
-    return `<div class="fc-row" data-good="${sc>=5.5}">
-      <span>${dayLabel(d.date)}</span>
-      <strong>${fmtHN(d.mh)}${fmtU()}</strong>
-      <span>${scoreLbl(sc)}</span>
-      <small style="font-size:11px;">${Math.round(d.mw)}קמ"ש <span style="color:${wl.c};font-weight:700;">${wl.t}</span></small>
-      <span class="score-chip" style="background:${col}22;color:${col};">${sc.toFixed(1)}</span>
+    const rowBg = sc>=7?'#e8f9f2':sc>=5.5?'#fffbf0':sc<3?'#fdf2f2':'';
+    const rowBdr = sc>=7?'#06d6a0':sc>=5.5?'#ffd166':sc<3?'#ef476f':'#dee8ef';
+    return `<div class="fc-row" style="background:${rowBg};border-right:4px solid ${rowBdr};" data-action="open" data-id="${b.id}">
+      <div class="fc-day">
+        <span class="fc-day-name">${dayLabel(d.date)}</span>
+        <span class="fc-period">${d.mp.toFixed(0)}שנ׳</span>
+      </div>
+      <div class="fc-height">
+        <span class="fc-cm">${cmRange(d.minh, d.mh)}</span>
+        <span class="fc-lbl">${heightLabel(d.mh)}</span>
+      </div>
+      <div class="fc-wind" style="background:${windBgCol(d.mw)};">
+        ${windArrowSvg(d.mwd)}
+        <span>${Math.round(d.mw)}</span>
+        <small>קמ"ש</small>
+      </div>
+      <div class="fc-score-col">
+        <span class="score-chip" style="background:${col}22;color:${col};font-size:14px;padding:4px 10px;">${sc.toFixed(1)}</span>
+        <span style="font-size:10px;color:#888;margin-top:2px;display:block;">${scoreLbl(sc)}</span>
+      </div>
     </div>`;
   }).join('');
 }
