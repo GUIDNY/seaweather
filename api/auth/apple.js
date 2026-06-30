@@ -1,5 +1,4 @@
-import { sql } from '@vercel/postgres';
-import { verifyAppleToken, signToken, initDb, safeUser, cors } from '../_lib/auth.js';
+import { verifyAppleToken, signToken, getUser, putUser, defaultUser, safeUser, cors } from '../_lib/auth.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -11,27 +10,24 @@ export default async function handler(req, res) {
 
   try {
     const payload = await verifyAppleToken(identityToken);
-    const appleSub = payload.sub;
+    const sub = payload.sub;
     const email = payload.email || userInfo?.email || null;
     const name = userInfo?.name
       ? `${userInfo.name.firstName ?? ''} ${userInfo.name.lastName ?? ''}`.trim() || null
       : null;
 
-    await initDb();
+    // Upsert user in blob storage
+    let user = await getUser(sub);
+    if (!user) {
+      user = defaultUser(sub, email, name);
+    } else {
+      user.email = email || user.email;
+      user.name = name || user.name;
+      user.updatedAt = new Date().toISOString();
+    }
+    await putUser(sub, user);
 
-    const { rows } = await sql`
-      INSERT INTO users (apple_sub, email, name)
-      VALUES (${appleSub}, ${email}, ${name})
-      ON CONFLICT (apple_sub) DO UPDATE SET
-        email      = COALESCE(EXCLUDED.email, users.email),
-        name       = COALESCE(${name}::text, users.name),
-        updated_at = NOW()
-      RETURNING *
-    `;
-
-    const user = rows[0];
-    const token = await signToken(appleSub, user.id);
-
+    const token = await signToken(sub);
     res.status(200).json({ token, user: safeUser(user) });
   } catch (e) {
     console.error('Apple auth error:', e);

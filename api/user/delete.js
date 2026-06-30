@@ -1,7 +1,4 @@
-// Apple App Store REQUIREMENT: apps must allow users to delete their account.
-// This endpoint permanently removes all user data.
-import { sql } from '@vercel/postgres';
-import { verifyToken, cors } from '../_lib/auth.js';
+import { verifyToken, deleteUser, cors } from '../_lib/auth.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -12,6 +9,6 @@ export default async function handler(req, res) {
   try { payload = await verifyToken(req); }
   catch { return res.status(401).json({ error: 'Unauthorized' }); }
 
-  await sql`DELETE FROM users WHERE apple_sub = ${payload.sub}`;
+  await deleteUser(payload.sub);
   res.json({ ok: true, message: 'Account and all data permanently deleted.' });
 }

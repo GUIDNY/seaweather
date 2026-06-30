@@ -1,5 +1,5 @@
 import { jwtVerify, SignJWT } from 'jose';
-import { sql } from '@vercel/postgres';
+import { put, head, del } from '@vercel/blob';
 
 const secret = () => new TextEncoder().encode(process.env.JWT_SECRET);
 const BUNDLE_ID = 'com.surfy.israel';
@@ -15,8 +15,8 @@ export async function verifyAppleToken(identityToken) {
   return payload;
 }
 
-export async function signToken(appleSub, userId) {
-  return new SignJWT({ sub: appleSub, uid: userId })
+export async function signToken(appleSub) {
+  return new SignJWT({ sub: appleSub })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(TOKEN_TTL)
@@ -30,40 +30,70 @@ export async function verifyToken(req) {
   return payload;
 }
 
-export async function initDb() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS users (
-      id          SERIAL PRIMARY KEY,
-      apple_sub   TEXT UNIQUE NOT NULL,
-      email       TEXT,
-      name        TEXT,
-      saved_ids   TEXT[]  DEFAULT '{}',
-      spot_id     TEXT    DEFAULT 'netanya',
-      metric      BOOLEAN DEFAULT true,
-      alerts_on   BOOLEAN DEFAULT false,
-      alert_h     NUMERIC DEFAULT 0.8,
-      alert_start TEXT    DEFAULT '06:00',
-      alert_end   TEXT    DEFAULT '20:00',
-      alert_spot  TEXT    DEFAULT 'netanya',
-      created_at  TIMESTAMPTZ DEFAULT NOW(),
-      updated_at  TIMESTAMPTZ DEFAULT NOW()
-    )
-  `;
+// Blob key for a user
+const userKey = sub => `users/${sub.replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
+
+export async function getUser(sub) {
+  try {
+    const key = userKey(sub);
+    const info = await head(key, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    if (!info) return null;
+    const res = await fetch(info.url);
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function putUser(sub, data) {
+  const key = userKey(sub);
+  const blob = await put(key, JSON.stringify(data), {
+    access: 'public',
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  });
+  return blob;
+}
+
+export async function deleteUser(sub) {
+  const key = userKey(sub);
+  try {
+    const info = await head(key, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    if (info) await del(info.url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+  } catch { /* already gone */ }
+}
+
+export function defaultUser(sub, email, name) {
+  return {
+    sub,
+    email: email || null,
+    name: name || null,
+    savedIds: [],
+    spotId: 'netanya',
+    metric: true,
+    alertsOn: false,
+    alertH: 0.8,
+    alertStart: '06:00',
+    alertEnd: '20:00',
+    alertSpot: 'netanya',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export function safeUser(u) {
   return {
-    id: u.id,
     name: u.name,
     email: u.email,
-    savedIds: u.saved_ids ?? [],
-    spotId: u.spot_id,
+    savedIds: u.savedIds ?? [],
+    spotId: u.spotId,
     metric: u.metric,
-    alertsOn: u.alerts_on,
-    alertH: parseFloat(u.alert_h),
-    alertStart: u.alert_start,
-    alertEnd: u.alert_end,
-    alertSpot: u.alert_spot,
+    alertsOn: u.alertsOn,
+    alertH: u.alertH,
+    alertStart: u.alertStart,
+    alertEnd: u.alertEnd,
+    alertSpot: u.alertSpot,
   };
 }
 
