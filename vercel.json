@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "api/**/*.js": { "runtime": "nodejs22.x" }
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -15,9 +18,9 @@
       ]
     },
     {
-      "source": "/app.js",
+      "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        { "key": "Cache-Control", "value": "no-store" }
       ]
     }
   ]

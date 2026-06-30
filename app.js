@@ -368,6 +368,7 @@ async function renderSaved() {
    PROFILE TAB
 ══════════════════════════════════════ */
 function renderProfile() {
+  renderAccountCard();
   // Spot chips
   el('spot-list').innerHTML = BEACHES.map(b =>
     `<button class="spot-chip ${b.id===S.cfg.spotId?'active':''}" data-action="selectSpot" data-id="${b.id}">${b.name}</button>`
@@ -609,6 +610,108 @@ function checkAlert() {
   new Notification(`🦊 גלים ב${b.name}`, { body:`${fmtH(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}` });
 }
 
+
+/* ══════════════════════════════════════
+   AUTH (Sign in with Apple + cloud sync)
+══════════════════════════════════════ */
+const API = '';  // same origin on Vercel
+const AUTH = {
+  token: localStorage.getItem('surfy-token') || null,
+  user: JSON.parse(localStorage.getItem('surfy-user') || 'null'),
+};
+
+function isLoggedIn() { return !!AUTH.token; }
+
+function saveAuth(token, user) {
+  AUTH.token = token; AUTH.user = user;
+  localStorage.setItem('surfy-token', token);
+  localStorage.setItem('surfy-user', JSON.stringify(user));
+}
+
+function clearAuth() {
+  AUTH.token = null; AUTH.user = null;
+  localStorage.removeItem('surfy-token');
+  localStorage.removeItem('surfy-user');
+}
+
+async function apiReq(method, path, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(AUTH.token ? { Authorization: 'Bearer ' + AUTH.token } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// Called by iOS Swift after SIWA completes
+window.onSIWASuccess = async function(identityToken, userInfo) {
+  try {
+    const { token, user } = await apiReq('POST', '/api/auth/apple', { identityToken, userInfo });
+    saveAuth(token, user);
+    // Merge cloud settings into local
+    cfg('savedIds', user.savedIds);
+    cfg('spotId', user.spotId);
+    cfg('metric', user.metric);
+    renderProfile();
+    renderHome();
+    showSyncStatus('✅ מחובר בהצלחה');
+  } catch(e) {
+    console.error('SIWA error', e);
+    alert('התחברות נכשלה — נסה שוב.');
+  }
+};
+
+async function syncCloud() {
+  if (!isLoggedIn()) return;
+  try {
+    showSyncStatus('מסנכרן...');
+    await apiReq('PUT', '/api/user/sync', {
+      savedIds: S.cfg.savedIds,
+      spotId: S.cfg.spotId,
+      metric: S.cfg.metric,
+      alertsOn: S.cfg.alertsOn,
+      alertH: S.cfg.alertH,
+      alertStart: S.cfg.alertStart,
+      alertEnd: S.cfg.alertEnd,
+      alertSpot: S.cfg.alertSpot,
+    });
+    showSyncStatus('✅ סונכרן ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
+  } catch { showSyncStatus('❌ שגיאת סנכרון'); }
+}
+
+function showSyncStatus(msg) {
+  const el2 = el('sync-status');
+  if (el2) el2.textContent = msg;
+}
+
+async function deleteAccount() {
+  if (!confirm('מחיקת חשבון תמחק את כל הנתונים שלך לצמיתות. להמשיך?')) return;
+  try {
+    await apiReq('DELETE', '/api/user/delete');
+    clearAuth();
+    renderProfile();
+    alert('החשבון נמחק בהצלחה.');
+  } catch { alert('שגיאה במחיקת חשבון — נסה שוב.'); }
+}
+
+function renderAccountCard() {
+  const out = el('account-signed-out');
+  const inp = el('account-signed-in');
+  if (!out || !inp) return;
+  if (isLoggedIn() && AUTH.user) {
+    out.style.display = 'none';
+    inp.style.display = 'block';
+    const nm = el('account-name');
+    const em = el('account-email');
+    if (nm) nm.textContent = AUTH.user.name || 'Surfy User';
+    if (em) em.textContent = AUTH.user.email || '';
+  } else {
+    out.style.display = 'block';
+    inp.style.display = 'none';
+  }
+}
+
 /* ══════════════════════════════════════
    EVENT DELEGATION (single listener)
 ══════════════════════════════════════ */
@@ -638,6 +741,17 @@ document.addEventListener('click', function(e) {
       else el('alert-log').textContent='הפעל קודם את ההתראות למעלה.';
       break;
     }
+    case 'signInWithApple': {
+      if (window.webkit?.messageHandlers?.siwa) {
+        window.webkit.messageHandlers.siwa.postMessage({});
+      } else {
+        alert('Sign in with Apple זמין רק באפליקציה הנייטיב.');
+      }
+      break;
+    }
+    case 'syncCloud':    syncCloud();    break;
+    case 'signOut':      clearAuth(); renderProfile(); break;
+    case 'deleteAccount': deleteAccount(); break;
   }
 });
 

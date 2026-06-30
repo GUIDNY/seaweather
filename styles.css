@@ -339,3 +339,26 @@ button{cursor:pointer;font-family:inherit}
   .now-bar{flex-wrap:wrap}
   .now-item{min-width:50%}
 }
+
+/* ── ACCOUNT CARD ── */
+.account-card{}
+.siwa-btn{
+  display:flex;align-items:center;gap:10px;
+  background:#000;color:#fff;border:none;border-radius:12px;
+  padding:12px 20px;font-size:15px;font-weight:700;font-family:'Heebo',sans-serif;
+  cursor:pointer;width:100%;justify-content:center;transition:opacity .15s;
+}
+.siwa-btn:hover{opacity:.85}
+.siwa-btn svg{width:20px;height:20px;flex-shrink:0}
+.outline-btn{
+  padding:8px 16px;border:1.5px solid var(--line);border-radius:10px;
+  background:#fff;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;
+  transition:all .15s;font-family:'Heebo',sans-serif;
+}
+.outline-btn:hover{border-color:var(--ocean);color:var(--ocean)}
+.danger-btn{
+  padding:8px 16px;border:1.5px solid #ef476f;border-radius:10px;
+  background:#fff5f7;font-size:13px;font-weight:700;color:#ef476f;cursor:pointer;
+  transition:all .15s;font-family:'Heebo',sans-serif;
+}
+.danger-btn:hover{background:#ef476f;color:#fff}
