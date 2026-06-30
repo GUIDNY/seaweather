@@ -91,14 +91,16 @@ function dayLabel(isoDate) {
 }
 
 function heightLabel(mh) {
+  // Open-Meteo = offshore significant wave height, ~1.5-2x actual beach face.
+  // Thresholds calibrated to Israeli beach conditions.
   const cm = mh * 100;
-  if (cm < 5)  return 'ים שקט';
-  if (cm < 25) return 'קרסול';
-  if (cm < 50) return 'ברך';
-  if (cm < 80) return 'מותניים';
-  if (cm < 110) return 'חזה';
-  if (cm < 150) return 'כתף';
-  if (cm < 200) return 'ראש';
+  if (cm < 12)  return 'ים שקט';
+  if (cm < 50)  return 'קרסול';   // ankle: up to 50cm
+  if (cm < 105) return 'ברך';     // knee:  50-105cm  (100cm → ברך ✓)
+  if (cm < 155) return 'מותניים'; // waist: 105-155cm
+  if (cm < 205) return 'חזה';     // chest: 155-205cm
+  if (cm < 260) return 'כתף';     // shoulder: 205-260cm
+  if (cm < 330) return 'ראש';     // head: 260-330cm
   return 'מעל הראש';
 }
 
