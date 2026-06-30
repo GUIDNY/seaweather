@@ -108,9 +108,9 @@ function windBgCol(ws) {
   return ws < 10 ? '#1a9e5c' : ws < 20 ? '#e67e22' : ws < 30 ? '#d35400' : '#c0392b';
 }
 
-function windArrowSvg(deg) {
+function windArrowSvg(deg, col) {
   const rot = (deg + 180) % 360;
-  return `<svg class="w-arrow" viewBox="0 0 20 20" style="transform:rotate(${rot}deg)"><polygon points="10,1 14.5,15 10,12.5 5.5,15" fill="white"/></svg>`;
+  return `<svg class="w-arrow" viewBox="0 0 20 20" style="transform:rotate(${rot}deg)"><polygon points="10,1 14.5,15 10,12.5 5.5,15" fill="${col||'currentColor'}"/></svg>`;
 }
 
 function cmRange(minh, mh) {
@@ -215,8 +215,8 @@ function updateHomeHero(b, data) {
   const cur = data.cur, sc = cur.sc, col = scoreColor(sc);
   el('hero-desc').textContent = `${scoreLbl(sc)} לגלישה · ${fmtH(cur.wh)} · ${Math.round(cur.ws)} קמ"ש · ${cur.temp.toFixed(0)}°C`;
   el('hero-ring').innerHTML = ring(sc,78,7,col) + `<div class="ring-num large" style="color:${col};">${sc.toFixed(1)}</div>`;
-  // wire hero open button
-  document.querySelector('[data-action="open"][data-id="__current"]').dataset.id = b.id;
+  const heroBtn = el('hero-open-btn');
+  if (heroBtn) heroBtn.dataset.id = b.id;
 }
 
 function updateNow(b, cur) {
