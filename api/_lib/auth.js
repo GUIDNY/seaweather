@@ -36,9 +36,11 @@ const userKey = sub => `users/${sub.replace(/[^a-zA-Z0-9_-]/g, '_')}.json`;
 export async function getUser(sub) {
   try {
     const key = userKey(sub);
-    const info = await head(key, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    const info = await head(key, { token });
     if (!info) return null;
-    const res = await fetch(info.url);
+    const res = await fetch(info.url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) return null;
     return await res.json();
   } catch {
     return null;
@@ -47,13 +49,12 @@ export async function getUser(sub) {
 
 export async function putUser(sub, data) {
   const key = userKey(sub);
-  const blob = await put(key, JSON.stringify(data), {
-    access: 'public',
+  return put(key, JSON.stringify(data), {
+    access: 'private',
     token: process.env.BLOB_READ_WRITE_TOKEN,
     contentType: 'application/json',
     addRandomSuffix: false,
   });
-  return blob;
 }
 
 export async function deleteUser(sub) {
