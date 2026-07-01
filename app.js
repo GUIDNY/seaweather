@@ -18,7 +18,13 @@ const DAYS = ['יום א','יום ב','יום ג','יום ד','יום ה','יו�
 /* ══════════════════════════════════════
    STATE
 ══════════════════════════════════════ */
-const DEFAULTS = { spotId:'netanya', savedIds:['netanya'], metric:true, alertsOn:false, alertH:0.8, alertStart:'06:00', alertEnd:'20:00', alertSpot:'netanya', lastAlertKey:'' };
+const DEFAULTS = { spotId:'netanya', savedIds:['netanya'], metric:true, surfType:'waves', windUnit:'kmh', alertsOn:false, alertH:0.8, alertStart:'06:00', alertEnd:'20:00', alertSpot:'netanya', windAlertOn:false, windAlertSpeed:15, lastAlertKey:'', lastWindAlertKey:'' };
+
+const SURF_TYPES = {
+  waves: { label:'גלים',   emoji:'🏄‍♂️', heroTitle:'גולש גלים',    color:'#0077b6', grad:'linear-gradient(135deg,#0077b6,#00b4d8)', img:'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80' },
+  wind:  { label:'רוח',    emoji:'🪁',   heroTitle:'גולש רוח',      color:'#e85d04', grad:'linear-gradient(135deg,#c44b00,#e85d04)',  img:'https://images.unsplash.com/photo-1530869590952-3012b8ad6afd?auto=format&fit=crop&w=800&q=80' },
+  both:  { label:'גם וגם', emoji:'🌊',    heroTitle:'גולש הכל',      color:'#06d6a0', grad:'linear-gradient(135deg,#00916e,#06d6a0)',  img:'https://images.unsplash.com/photo-1612025344470-df9818c785a4?auto=format&fit=crop&w=800&q=80' },
+};
 
 function loadSettings() {
   try {
@@ -45,7 +51,11 @@ const fmtHN = m => S.cfg.metric ? m.toFixed(1) : (m*3.281).toFixed(1);
 const fmtU = () => S.cfg.metric ? 'מ׳' : 'ft';
 
 function d2c(deg) {
-  return ['צ','צ-מ','מ','ד-מ','ד','ד-מ','מ','צ-מ'][Math.round(((deg%360)+360)%360/45)%8];
+  return ['צ','צ-מז','מז','ד-מז','ד','ד-מע','מע','צ-מע'][Math.round(((deg%360)+360)%360/45)%8];
+}
+function d2cFull(deg) {
+  const dirs = ['צפונית','צפון מזרחית','מזרחית','דרום מזרחית','דרומית','דרום מערבית','מערבית','צפון מערבית'];
+  return dirs[Math.round(((deg%360)+360)%360/45)%8];
 }
 function wClass(deg, offDir) {
   const d = ((deg%360)+360)%360, o = ((offDir%360)+360)%360;
@@ -54,15 +64,40 @@ function wClass(deg, offDir) {
 }
 const WL = { offshore:{t:'אופשור ✓',c:'#06d6a0'}, onshore:{t:'אונשור',c:'#ef476f'}, cross:{t:'רוח צד',c:'#ffb703'} };
 
-function score(wh, wp, ws, wd, offDir) {
-  let s = wh<0.2?0.5:wh<0.4?1.6:wh<0.8?3.2:wh<1.5?4:wh<2.5?3:1.5;
-  s += wp<5?0.5:wp<7?1.6:wp<9?2.5:3;
+function score(wh, wp, ws, wd, offDir, swh=0, swp=0, wwh=0) {
+  const surfType = S.cfg?.surfType || 'waves';
+
+  if (surfType === 'wind') {
+    // ווינד-סרפינג: רוח קובעת
+    const kn = ws / 1.852;
+    let s = kn < 10 ? 0.5 : kn < 15 ? 2.0 : kn < 17 ? 4.0 : kn < 20 ? 6.0 : kn < 25 ? 8.0 : 9.5;
+    const c = wClass(wd, offDir);
+    s += c === 'cross' ? 0.8 : c === 'onshore' ? 0.3 : 0; // offshore = רע לווינד
+    return Math.round(clamp(s, 0, 10) * 10) / 10;
+  }
+
+  // 'waves' or 'both' — wave height dominant
+  const dh = Math.max(0, wh - 0.2) * 100;
+  let s = dh <= 20 ? 0.1 : dh < 60 ? 0.5 : dh < 80 ? 1.0 : dh < 100 ? 1.8 : dh < 120 ? 2.8 : dh < 149 ? 4.5 : dh < 200 ? 6.2 : 7.5;
+
+  s += wp < 5 ? 0 : wp < 7 ? 0.4 : wp < 9 ? 0.8 : 1.2;
+
+  if (wh > 0) {
+    s += (swh / wh) * 0.6 + (swp >= 10 ? 0.4 : swp >= 7 ? 0.2 : 0);
+  }
+
   const c = wClass(wd, offDir);
-  s += c==='offshore' ? (ws<15?3:ws<25?2:1) : c==='cross' ? (ws<15?2:1) : (ws<10?1.5:ws<20?0.8:0.2);
-  return Math.round(clamp(s,0,10)*10)/10;
+  s += c === 'offshore' ? (ws < 15 ? 0.8 : ws < 25 ? 0.5 : 0.2) : c === 'cross' ? (ws < 15 ? 0.4 : 0.1) : (ws < 10 ? 0.2 : 0);
+
+  if (surfType === 'both') {
+    const kn = ws / 1.852;
+    s += kn >= 15 ? 0.6 : kn >= 10 ? 0.2 : 0;
+  }
+
+  return Math.round(clamp(s, 0, 10) * 10) / 10;
 }
-function scoreColor(s) { return s>=7.5?'#06d6a0':s>=5.5?'#00b4d8':s>=3.5?'#ffd166':'#ef476f'; }
-function scoreLbl(s) { return s>=7.5?'מצוין':s>=5.5?'טוב':s>=3.5?'בינוני':'שטוח'; }
+function scoreColor(s) { return s>=7.5?'#06d6a0':s>=5.5?'#00b4d8':s>=4.0?'#ffd166':s>=2.8?'#f4a261':s>=1.5?'#adb5bd':'#ef476f'; }
+function scoreLbl(s) { return s>=7.5?'מצוין':s>=5.5?'טוב מאוד':s>=4.0?'טוב':s>=2.8?'סבבה':s>=1.5?'גלי':'שטוח'; }
 
 function ring(sc, sz, sw, col) {
   sz=sz||54; sw=sw||5; col=col||scoreColor(sc);
@@ -104,9 +139,25 @@ function heightLabel(mh) {
   return 'מעל הראש';
 }
 
-function windBgCol(ws) {
-  return ws < 10 ? '#1a9e5c' : ws < 20 ? '#e67e22' : ws < 30 ? '#d35400' : '#c0392b';
+function windLbl(ws_kmh) {
+  const kn = ws_kmh / 1.852;
+  if (kn >= 25) return { lbl:'פצצה',     col:'#9b2226' };
+  if (kn >= 20) return { lbl:'חזק מאוד', col:'#ae2012' };
+  if (kn >= 17) return { lbl:'חזק',      col:'#e85d04' };
+  if (kn >= 15) return { lbl:'נחמד',     col:'#f4a261' };
+  return               { lbl:'קל',       col:'#52b788' };
 }
+function windBgCol(ws_kmh) {
+  const kn = ws_kmh / 1.852;
+  return kn >= 25 ? '#9b2226' : kn >= 20 ? '#ae2012' : kn >= 17 ? '#e85d04' : kn >= 15 ? '#f4a261' : '#1a9e5c';
+}
+function fmtWind(ws_kmh) {
+  return S.cfg.windUnit === 'knots' ? `${Math.round(ws_kmh / 1.852)} קשר` : `${Math.round(ws_kmh)} קמ"ש`;
+}
+function fmtWindN(ws_kmh) {
+  return S.cfg.windUnit === 'knots' ? Math.round(ws_kmh / 1.852).toString() : Math.round(ws_kmh).toString();
+}
+function fmtWindU() { return S.cfg.windUnit === 'knots' ? 'קשר' : 'קמ"ש'; }
 
 function windArrowSvg(deg, col) {
   const rot = (deg + 180) % 360;
@@ -120,6 +171,17 @@ function surfLabel(mh) {
   if (cm < 200) return { lvl:2, emoji:'🏄‍♂️', title:'שווה לכולם',       desc:'תנאים טובים לכל הרמות. גלים מאורגנים ונאים — הגיע הזמן לכנס למים!',     color:'#00b4d8' };
   return               { lvl:3, emoji:'🔥', title:'מנוסים בלבד',         desc:'גלים גבוהים ועוצמתיים. מומלץ לגולשים מנוסים בלבד. יש לנקוט זהירות.',    color:'#06d6a0' };
 }
+
+// Display: always subtract 20cm; if result ≤ 20cm → "עד 20"
+function adjH(m) { return Math.max(0, m - 0.2); }
+function fmtHD(m)  { const a=adjH(m); return a<=0.2 ? 'עד 20ס"מ' : fmtH(a); }
+function fmtHND(m) { const a=adjH(m); return a<=0.2 ? (S.cfg.metric?'≤20':'≤0.7') : fmtHN(a); }
+function dispHFull(m) { const a=adjH(m); return a<=0.2 ? (S.cfg.metric?'עד 20ס"מ':'עד 0.7ft') : `${fmtHN(a)}${fmtU()}`; }
+function cmRangeD(minh,mh) {
+  const ah=adjH(mh); if(ah<=0.2) return 'עד 20ס"מ';
+  return cmRange(adjH(minh), ah);
+}
+function heightLabelD(mh) { return heightLabel(adjH(mh)); }
 
 function cmRange(minh, mh) {
   if (!S.cfg.metric) {
@@ -140,7 +202,7 @@ async function fetchBeach(b) {
   if (S.cache[key] && Date.now()-S.cache[key].t < 600000) return S.cache[key].d;
 
   const [mr, fr] = await Promise.all([
-    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${b.lat}&longitude=${b.lon}&hourly=wave_height,wave_period,wave_direction&timezone=auto&forecast_days=7`),
+    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${b.lat}&longitude=${b.lon}&hourly=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,wind_wave_height&timezone=auto&forecast_days=7`),
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}&hourly=wind_speed_10m,wind_direction_10m,temperature_2m&current=temperature_2m,wind_speed_10m,wind_direction_10m&timezone=auto&forecast_days=7`)
   ]);
   const [m, f] = await Promise.all([mr.json(), fr.json()]);
@@ -152,7 +214,7 @@ async function fetchBeach(b) {
 
   const h24 = [];
   for (let i=ni; i<Math.min(ni+24,times.length); i++) {
-    h24.push({ time:times[i], wh:m.hourly.wave_height[i]??0, wp:m.hourly.wave_period[i]??0, wd:m.hourly.wave_direction[i]??0, ws:f.hourly.wind_speed_10m[i]??0, wd2:f.hourly.wind_direction_10m[i]??0 });
+    h24.push({ time:times[i], wh:m.hourly.wave_height[i]??0, wp:m.hourly.wave_period[i]??0, wd:m.hourly.wave_direction[i]??0, ws:f.hourly.wind_speed_10m[i]??0, wd2:f.hourly.wind_direction_10m[i]??0, swh:m.hourly.swell_wave_height?.[i]??0, swp:m.hourly.swell_wave_period?.[i]??0, wwh:m.hourly.wind_wave_height?.[i]??0 });
   }
 
   // group by day
@@ -163,24 +225,24 @@ async function fetchBeach(b) {
     dm.get(dk).push(i);
   }
   const d7 = [...dm.entries()].slice(0,7).map(([dk,ix]) => {
-    let mh=0, minh=Infinity, mp=0, mw=0, mwd=0, avgWd=0, wdCount=0;
+    let mh=0, minh=Infinity, mp=0, mw=0, mwd=0, swh=0, swp=0, wwh=0;
     ix.forEach(i => {
       const wh=m.hourly.wave_height[i]??0, ws=f.hourly.wind_speed_10m[i]??0;
       if(wh>0 && wh<minh) minh=wh;
-      if(wh>mh){mh=wh;mp=m.hourly.wave_period[i]??0;}
+      if(wh>mh){mh=wh;mp=m.hourly.wave_period[i]??0;swh=m.hourly.swell_wave_height?.[i]??0;swp=m.hourly.swell_wave_period?.[i]??0;wwh=m.hourly.wind_wave_height?.[i]??0;}
       if(ws>mw){mw=ws;mwd=f.hourly.wind_direction_10m[i]??0;}
     });
     if(minh===Infinity) minh=0;
-    return { date:dk, mh, minh, mp, mw, mwd, sc:score(mh,mp,mw,mwd,b.offDir) };
+    return { date:dk, mh, minh, mp, mw, mwd, swh, swp, wwh, sc:score(mh,mp,mw,mwd,b.offDir,swh,swp,wwh) };
   });
 
   const cur = {
-    wh:m.hourly.wave_height[ni]??0, wp:m.hourly.wave_period[ni]??0, wd:m.hourly.wave_direction[ni]??0,
+    wh:m.hourly.wave_height[ni]??0, wp:m.hourly.wave_period[ni]??0, wd:m.hourly.wave_direction[ni]??0, swh:m.hourly.swell_wave_height?.[ni]??0, swp:m.hourly.swell_wave_period?.[ni]??0, wwh:m.hourly.wind_wave_height?.[ni]??0,
     ws:f.current?.wind_speed_10m??f.hourly.wind_speed_10m[ni]??0,
     wd2:f.current?.wind_direction_10m??f.hourly.wind_direction_10m[ni]??0,
     temp:f.current?.temperature_2m??f.hourly.temperature_2m[ni]??0,
   };
-  cur.sc = score(cur.wh, cur.wp, cur.ws, cur.wd2, b.offDir);
+  cur.sc = score(cur.wh, cur.wp, cur.ws, cur.wd2, b.offDir, cur.swh, cur.swp, cur.wwh);
 
   const d = { h24, d7, cur };
   S.cache[key] = { t:Date.now(), d };
@@ -221,7 +283,7 @@ async function renderHome() {
 
 function updateHomeHero(b, data) {
   const cur = data.cur, sc = cur.sc, col = scoreColor(sc);
-  el('hero-desc').textContent = `${scoreLbl(sc)} לגלישה · ${fmtH(cur.wh)} · ${Math.round(cur.ws)} קמ"ש · ${cur.temp.toFixed(0)}°C`;
+  el('hero-desc').textContent = `${scoreLbl(sc)} לגלישה · ${fmtHD(cur.wh)} · ${fmtWind(cur.ws)} · ${cur.temp.toFixed(0)}°C`;
   el('hero-ring').innerHTML = ring(sc,78,7,col) + `<div class="ring-num large" style="color:${col};">${sc.toFixed(1)}</div>`;
   const heroBtn = el('hero-open-btn');
   if (heroBtn) heroBtn.dataset.id = b.id;
@@ -230,42 +292,65 @@ function updateHomeHero(b, data) {
 function updateNow(b, cur) {
   const cls = wClass(cur.wd2, b.offDir), wl = WL[cls];
   let nowVal, nowUnit;
+  const _a = adjH(cur.wh);
   if (S.cfg.metric) {
-    nowVal = Math.max(0, Math.round(cur.wh * 100 / 5) * 5);
+    nowVal = _a<=0.2 ? 'עד 20' : Math.round(_a * 100 / 5) * 5;
     nowUnit = 'ס"מ';
   } else {
-    nowVal = (cur.wh * 3.281).toFixed(1);
+    nowVal = _a<=0.2 ? '≤0.7' : (_a * 3.281).toFixed(1);
     nowUnit = 'ft';
   }
-  el('now-h').innerHTML = `<span class="now-cm">${nowVal}</span><span class="now-unit">${nowUnit}</span>`;
-  el('now-w').innerHTML = windArrowSvg(cur.wd2) + `<span>${Math.round(cur.ws)} קמ"ש</span>`;
-  el('now-c').innerHTML = `<span class="now-cond-badge" style="background:${wl.c}20;color:${wl.c};">${heightLabel(cur.wh)}</span>`;
+  const wlNow = windLbl(cur.ws);
+  const kn = Math.round(cur.ws / 1.852);
+  el('now-h').innerHTML = `<span class="now-cm">${nowVal}</span><span class="now-unit">${nowUnit}</span><span style="font-size:10px;color:${wlNow.col};font-weight:700;display:block;margin-top:2px;">${kn} קשר</span>`;
+  el('now-w').innerHTML = windArrowSvg(cur.wd2) + `<span>${fmtWind(cur.ws)}</span>`;
+  if (S.cfg.surfType === 'wind') {
+    el('now-c').innerHTML = `<span class="now-cond-badge" style="background:${wlNow.col}22;color:${wlNow.col};">${wlNow.lbl} · ${d2cFull(cur.wd2)}</span>`;
+  } else {
+    el('now-c').innerHTML = `<span class="now-cond-badge" style="background:${wl.c}20;color:${wl.c};">${heightLabelD(cur.wh)}</span>`;
+  }
   el('now-t').textContent = new Intl.DateTimeFormat('he-IL',{hour:'2-digit',minute:'2-digit'}).format(new Date());
 }
 
 function renderFcTable(b, d7) {
+  const isWind = S.cfg.surfType === 'wind';
+
+  // Update table header label
+  const hl = el('fc-head-label');
+  if (hl) hl.textContent = isWind ? 'כיוון ואיכות רוח' : 'גובה ומצב';
+
   el('fc-list').innerHTML = d7.map((d) => {
-    const sc=d.sc, col=scoreColor(sc), surf=surfLabel(d.mh);
-    const rowBg = sc>=7?'#e8f9f2':sc>=5.5?'#fffbf0':sc<3?'#fdf2f2':'';
-    const rowBdr = sc>=7?'#06d6a0':sc>=5.5?'#ffd166':sc<3?'#ef476f':'#dee8ef';
-    return `<div class="fc-row" style="background:${rowBg};border-right:4px solid ${rowBdr};cursor:pointer;"
-      data-action="forecastPopup" data-beach="${b.id}" data-date="${d.date}" data-mh="${d.mh}" data-minh="${d.minh}" data-sc="${sc}">
+    const sc=d.sc, col=scoreColor(sc);
+    const rowBg = sc>=5.5?'#e8f9f2':sc>=4.0?'#fffbf0':sc>=2.8?'#fff8f0':'';
+    const rowBdr = sc>=5.5?'#06d6a0':sc>=4.0?'#ffd166':sc>=2.8?'#f4a261':'#dee8ef';
+    const wl2 = windLbl(d.mw);
+    const windCls = wClass(d.mwd, b.offDir);
+    const wlDir = WL[windCls];
+
+    const midCol = isWind
+      ? `<div class="fc-height fc-wind-dir">
+           <span class="fc-cm" style="font-size:13px;">${d2cFull(d.mwd)}</span>
+           <span class="fc-lbl" style="color:${wlDir.c};font-weight:700;">${wlDir.t}</span>
+         </div>`
+      : `<div class="fc-height">
+           <span class="fc-cm">${cmRangeD(d.minh, d.mh)}</span>
+           <span class="fc-lbl">${heightLabelD(d.mh)}</span>
+         </div>`;
+
+    return `<div class="fc-row" style="background:${rowBg};border-right:4px solid ${rowBdr};" data-action="open" data-id="${b.id}">
       <div class="fc-day">
         <span class="fc-day-name">${dayLabel(d.date)}</span>
         <span class="fc-period">${d.mp.toFixed(0)}שנ׳</span>
       </div>
-      <div class="fc-height">
-        <span class="fc-cm">${cmRange(d.minh, d.mh)}</span>
-        <span class="fc-lbl">${heightLabel(d.mh)}</span>
-      </div>
+      ${midCol}
       <div class="fc-wind" style="background:${windBgCol(d.mw)};">
-        ${windArrowSvg(d.mwd)}
-        <span>${Math.round(d.mw)}</span>
-        <small>קמ"ש</small>
+        <div class="fw-a">${windArrowSvg(d.mwd, 'rgba(255,255,255,.95)')}</div>
+        <div class="fw-n">${fmtWindN(d.mw)}<span class="fw-u"> ${fmtWindU()}</span></div>
+        <div class="fw-l">${wl2.lbl}</div>
       </div>
       <div class="fc-score-col">
         <span class="score-chip" style="background:${col}22;color:${col};font-size:14px;padding:4px 10px;">${sc.toFixed(1)}</span>
-        <span class="fc-surf-emoji" title="${surf.title}">${surf.emoji}</span>
+        <span style="font-size:10px;color:#888;margin-top:2px;display:block;">${scoreLbl(sc)}</span>
       </div>
     </div>`;
   }).join('');
@@ -293,7 +378,7 @@ function renderHomeBeachList() {
       const data = await fetchBeach(b);
       const cur = data.cur, sc = cur.sc, col = scoreColor(sc);
       const sr = el(`bl-stat-${b.id}`), rg = el(`bl-ring-${b.id}`), cd = el(`bl-cond-${b.id}`);
-      if (sr) sr.textContent = `🌊 ${fmtHN(cur.wh)}${fmtU()} · 💨 ${Math.round(cur.ws)}קמ"ש`;
+      if (sr) sr.textContent = `🌊 ${dispHFull(cur.wh)} · 💨 ${fmtWind(cur.ws)}`;
       if (rg) rg.innerHTML = ring(sc,40,4,col) + `<div class="ring-num" style="font-size:12px;color:${col};">${sc.toFixed(1)}</div>`;
       if (cd) { cd.textContent = scoreLbl(sc); cd.style.color = col; cd.style.fontWeight = '800'; cd.style.fontSize = '11px'; }
     } catch {}
@@ -336,7 +421,7 @@ async function renderBeaches(query='') {
       const data = await fetchBeach(b);
       const sc = data.cur.sc, col = scoreColor(sc);
       const mn = el(`bc-mini-${b.id}`), rg = el(`bc-ring-${b.id}`);
-      if (mn) mn.textContent = `🌊 ${fmtHN(data.cur.wh)}${fmtU()} · 💨 ${Math.round(data.cur.ws)}קמ"ש`;
+      if (mn) mn.textContent = `🌊 ${dispHFull(data.cur.wh)} · 💨 ${fmtWind(data.cur.ws)}`;
       if (rg) rg.innerHTML = ring(sc,40,4,col) + `<div class="ring-num" style="font-size:12px;color:${col};">${sc.toFixed(1)}</div>`;
     } catch {}
   });
@@ -368,7 +453,7 @@ async function renderSaved() {
       const data = await fetchBeach(b);
       const sc = data.cur.sc, col = scoreColor(sc);
       const st = el(`sv-stat-${b.id}`);
-      if (st) st.innerHTML = `<span style="color:${col};font-weight:800;">${scoreLbl(sc)}</span> · 🌊 ${fmtHN(data.cur.wh)}${fmtU()} · 💨 ${Math.round(data.cur.ws)}קמ"ש`;
+      if (st) st.innerHTML = `<span style="color:${col};font-weight:800;">${scoreLbl(sc)}</span> · 🌊 ${dispHFull(data.cur.wh)} · 💨 ${fmtWind(data.cur.ws)}`;
     } catch {}
   });
 }
@@ -378,21 +463,71 @@ async function renderSaved() {
 ══════════════════════════════════════ */
 function renderProfile() {
   renderAccountCard();
+
+  const st = S.cfg.surfType || 'waves';
+  const stData = SURF_TYPES[st];
+
+  // Avatar circle
+  const avatarImg = el('prof-avatar-img');
+  if (avatarImg) { avatarImg.style.display = ''; avatarImg.src = stData.img; avatarImg.onerror = () => { avatarImg.style.display='none'; }; }
+  const avatarEmoji = el('prof-avatar-emoji');
+  if (avatarEmoji) avatarEmoji.textContent = stData.emoji;
+
+  // Name + subtitle
+  const subtitleMap = { waves:'גלים · גלשן · סאפ', wind:'ווינד · קייט', both:'גלים ורוח · הכל' };
+  const dname = el('prof-dname');
+  const dsub  = el('prof-dsub');
+  if (isLoggedIn() && AUTH.user) {
+    if (dname) dname.textContent = AUTH.user.name || stData.heroTitle;
+    if (dsub)  dsub.textContent  = subtitleMap[st];
+  } else {
+    if (dname) dname.textContent = stData.heroTitle;
+    if (dsub)  dsub.textContent  = subtitleMap[st];
+  }
+
+  // Surf type buttons
+  document.querySelectorAll('[data-action="setSurfType"]').forEach(btn => {
+    btn.classList.toggle('on',  btn.dataset.id === st);
+    btn.classList.toggle('off', btn.dataset.id !== st);
+  });
+
+  // Topbar badge
+  updateSurfBadge();
+
   // Spot chips
-  el('spot-list').innerHTML = BEACHES.map(b =>
+  const spotList = el('spot-list');
+  if (spotList) spotList.innerHTML = BEACHES.map(b =>
     `<button class="spot-chip ${b.id===S.cfg.spotId?'active':''}" data-action="selectSpot" data-id="${b.id}">${b.name}</button>`
   ).join('');
 
   // Alert spot select
-  el('alert-spot').innerHTML = BEACHES.map(b =>
+  if (el('alert-spot')) el('alert-spot').innerHTML = BEACHES.map(b =>
     `<option value="${b.id}" ${b.id===S.cfg.alertSpot?'selected':''}>${b.name}</option>`
   ).join('');
 
-  el('unit-chk').checked = !S.cfg.metric;
-  el('alert-toggle').checked = S.cfg.alertsOn;
-  el('alert-height').value = S.cfg.alertH;
-  el('alert-start').value = S.cfg.alertStart;
-  el('alert-end').value = S.cfg.alertEnd;
+  if (el('unit-chk'))        el('unit-chk').checked        = !S.cfg.metric;
+  if (el('wind-unit-chk'))   el('wind-unit-chk').checked   = S.cfg.windUnit === 'knots';
+  if (el('alert-toggle'))    el('alert-toggle').checked    = S.cfg.alertsOn;
+  if (el('alert-height'))    el('alert-height').value      = S.cfg.alertH;
+  if (el('alert-start'))     el('alert-start').value       = S.cfg.alertStart;
+  if (el('alert-end'))       el('alert-end').value         = S.cfg.alertEnd;
+  if (el('wind-alert-toggle')) el('wind-alert-toggle').checked = S.cfg.windAlertOn;
+  if (el('wind-alert-speed'))  el('wind-alert-speed').value    = S.cfg.windAlertSpeed;
+}
+
+function updateSurfBadge() {
+  const st = S.cfg.surfType || 'waves';
+  const stData = SURF_TYPES[st];
+  const badge = el('surf-mode-badge');
+  if (badge) badge.style.background = stData.grad;
+  const img = el('smb-img');
+  if (img) {
+    img.src = stData.img;
+    img.style.display = '';
+    img.onerror = () => { img.style.display = 'none'; };
+  }
+  const emoji = el('smb-emoji');
+  if (emoji) emoji.textContent = stData.emoji;
 }
 
 /* ══════════════════════════════════════
@@ -459,13 +594,13 @@ function renderDetail(b, data) {
       <div class="stat-grid">
         <div class="stat-card">
           <span class="stat-label">🌊 גובה גלים</span>
-          <span class="stat-val">${fmtH(cur.wh)}</span>
+          <span class="stat-val">${fmtHD(cur.wh)}</span>
           <span class="stat-sub">תקופה ${cur.wp.toFixed(1)} שנ׳</span>
         </div>
         <div class="stat-card">
           <span class="stat-label">💨 רוח</span>
-          <span class="stat-val">${Math.round(cur.ws)} קמ"ש</span>
-          <span class="stat-sub" style="color:${wl.c};font-weight:700;">${wl.t}</span>
+          <span class="stat-val">${fmtWind(cur.ws)}</span>
+          <span class="stat-sub" style="color:${windLbl(cur.ws).col};font-weight:700;">${windLbl(cur.ws).lbl} · ${wl.t}</span>
         </div>
         <div class="stat-card">
           <span class="stat-label">🧭 כיוון גל</span>
@@ -498,7 +633,7 @@ function renderDetail(b, data) {
             <span class="ol-day">${dayLabel(d.date)}</span>
             <span class="ol-dot" style="background:${c};"></span>
             <div class="ol-bar"><i style="width:${clamp(d.sc/10,0,1)*100}%;background:${c};"></i></div>
-            <span class="ol-ht">${fmtHN(d.mh)}${fmtU()}</span>
+            <span class="ol-ht">${dispHFull(d.mh)}</span>
             <span class="score-chip" style="background:${c}22;color:${c};">${d.sc.toFixed(1)}</span>
           </div>`;
         }).join('')}
@@ -522,7 +657,7 @@ function renderDetailChart(data) {
     data:{ labels, datasets:[{data:vals, backgroundColor:colors, borderRadius:5, maxBarThickness:16}] },
     options:{
       responsive:true,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: c => mode==='waves'?`${c.raw.toFixed(1)}מ׳`:`${c.raw.toFixed(0)}קמ"ש` } } },
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: c => mode==='waves'?`${c.raw.toFixed(1)}מ׳`:fmtWind(c.raw) } } },
       scales:{ x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}, y:{ticks:{font:{size:10}},grid:{color:'#eef3f8'}} }
     }
   });
@@ -556,16 +691,10 @@ function setTab(id) {
   document.querySelectorAll('.tnb,.bnb').forEach(b => b.classList.remove('active'));
   el(`tab-${id}`)?.classList.add('active');
   document.querySelectorAll(`[data-action="tab"][data-id="${id}"]`).forEach(b => b.classList.add('active'));
+  if (id==='home') renderHome();
   if (id==='beaches') renderBeaches();
   if (id==='saved') renderSaved();
   if (id==='profile') renderProfile();
-}
-
-function reRenderActiveTab() {
-  const t = S.currentTab;
-  if (t==='home') renderHome();
-  else if (t==='beaches') renderBeaches();
-  else if (t==='saved') renderSaved();
 }
 
 /* ══════════════════════════════════════
@@ -606,17 +735,34 @@ async function enableAlerts(on) {
 }
 
 function checkAlert() {
-  if (!S.cfg.alertsOn || Notification.permission!=='granted') return;
+  if (Notification.permission !== 'granted') return;
   const b = beach(S.cfg.alertSpot);
   const cached = S.cache[`${b.lat},${b.lon}`]?.d;
   if (!cached) return;
   const now = new Date();
-  const good = cached.h24.find(p => new Date(p.time)>=now && p.wh>=S.cfg.alertH);
-  if (!good) return;
-  const key = `${b.id}-${good.time}-${S.cfg.alertH}`;
-  if (key === S.cfg.lastAlertKey) return;
-  cfg('lastAlertKey', key);
-  new Notification(`🦊 גלים ב${b.name}`, { body:`${fmtH(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}` });
+
+  if (S.cfg.alertsOn) {
+    const good = cached.h24.find(p => new Date(p.time)>=now && p.wh>=S.cfg.alertH);
+    if (good) {
+      const key = `w-${b.id}-${good.time}-${S.cfg.alertH}`;
+      if (key !== S.cfg.lastAlertKey) {
+        cfg('lastAlertKey', key);
+        new Notification(`גלים ב${b.name}`, { body:`${fmtHD(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}` });
+      }
+    }
+  }
+
+  if (S.cfg.windAlertOn) {
+    const minKmh = S.cfg.windAlertSpeed * 1.852;
+    const good = cached.h24.find(p => new Date(p.time)>=now && p.ws>=minKmh);
+    if (good) {
+      const key = `wind-${b.id}-${good.time}-${S.cfg.windAlertSpeed}`;
+      if (key !== (S.cfg.lastWindAlertKey||'')) {
+        cfg('lastWindAlertKey', key);
+        new Notification(`רוח ב${b.name}`, { body:`${fmtWind(good.ws)} · ${windLbl(good.ws).lbl}` });
+      }
+    }
+  }
 }
 
 
@@ -705,19 +851,55 @@ async function deleteAccount() {
 }
 
 function renderAccountCard() {
-  const out = el('account-signed-out');
-  const inp = el('account-signed-in');
+  const out = el('np-auth-out');
+  const inp = el('np-auth-in');
   if (!out || !inp) return;
   if (isLoggedIn() && AUTH.user) {
     out.style.display = 'none';
-    inp.style.display = 'block';
-    const nm = el('account-name');
-    const em = el('account-email');
-    if (nm) nm.textContent = AUTH.user.name || 'Surfy User';
-    if (em) em.textContent = AUTH.user.email || '';
+    inp.style.display = '';
+    const em = el('np-acc-email');
+    if (em) em.textContent = AUTH.user.email || AUTH.user.name || '';
+    const adminSec = el('admin-section');
+    if (adminSec) {
+      const isAdmin = AUTH.user.email === 'bd12123@gmail.com';
+      adminSec.style.display = isAdmin ? '' : 'none';
+      if (isAdmin) loadAdminStats();
+    }
   } else {
-    out.style.display = 'block';
+    out.style.display = '';
     inp.style.display = 'none';
+    const adminSec = el('admin-section');
+    if (adminSec) adminSec.style.display = 'none';
+  }
+}
+
+async function loadAdminStats(force) {
+  const content = el('admin-content');
+  if (!content || (!force && content.dataset.loaded === '1')) return;
+  content.dataset.loaded = '1';
+  content.innerHTML = '<div style="color:#888;font-size:13px;padding:4px 0">טוען...</div>';
+  try {
+    const data = await apiReq('GET', '/api/admin/stats');
+    content.innerHTML = `
+      <div style="text-align:center;margin-bottom:16px">
+        <div class="admin-stat-num">${data.total}</div>
+        <div style="font-size:12px;color:#888">משתמשים רשומים</div>
+      </div>
+      <div class="admin-user-list">
+        ${(data.users||[]).map(u => `
+          <div class="admin-user-row">
+            <div>
+              <div style="font-weight:700;font-size:12px">${u.email||'—'}</div>
+              <div style="color:#aaa;font-size:11px">${[u.name,u.spotId].filter(Boolean).join(' · ')}</div>
+            </div>
+            <div style="color:#bbb;font-size:11px;white-space:nowrap">
+              ${u.createdAt ? new Date(u.createdAt).toLocaleDateString('he-IL') : ''}
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    content.textContent = 'שגיאה בטעינת נתונים';
+    content.dataset.loaded = '';
   }
 }
 
@@ -819,33 +1001,22 @@ document.addEventListener('click', function(e) {
     case 'authTab':    setAuthTab(el2.dataset.tab);    break;
     case 'authMode':   setAuthMode(el2.dataset.mode);  break;
     case 'submitEmailAuth': submitEmailAuth(); break;
-    case 'syncCloud':    syncCloud();    break;
+    case 'syncCloud':         syncCloud();    break;
+    case 'reloadAdminStats':  loadAdminStats(true); break;
     case 'signOut':      clearAuth(); renderProfile(); break;
     case 'deleteAccount': deleteAccount(); break;
-    case 'forecastPopup': {
-      const { beach: bId, date, mh: mhStr, minh: minhStr } = el2.dataset;
-      const mh = parseFloat(mhStr), minh = parseFloat(minhStr);
-      const b2 = beach(bId), surf = surfLabel(mh);
-      const dayName = dayLabel(date);
-      el('popup-emoji').textContent = surf.emoji;
-      el('popup-title').textContent = surf.title;
-      el('popup-title').style.color = surf.color;
-      el('popup-meta').textContent = `${dayName} · ${cmRange(minh, mh)} · ${heightLabel(mh)} · ${b2.name}`;
-      el('popup-desc').textContent = surf.desc;
-      el('popup-open-btn').dataset.id = bId;
-      // highlight active level
-      el('surf-popup').querySelectorAll('.popup-lvl').forEach((lvl, i) => {
-        lvl.classList.toggle('active', i === surf.lvl);
-      });
+    case 'setSurfType':
+      cfg('surfType', id);
+      S.cache = {};
+      updateSurfBadge();
+      renderProfile();
+      renderHome();
+      break;
+    case 'surfLegend':
       el('surf-popup').classList.remove('hidden');
       break;
-    }
     case 'closePopup':
       el('surf-popup').classList.add('hidden');
-      break;
-    case 'openFromPopup':
-      el('surf-popup').classList.add('hidden');
-      openBeach(el2.dataset.id);
       break;
   }
 });
@@ -858,21 +1029,34 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Profile form inputs (change events)
-document.getElementById('unit-chk').addEventListener('change', e => {
+// Profile form inputs (change events) — null-safe to survive cached old HTML
+function on(id, ev, fn) { const e = document.getElementById(id); if (e) e.addEventListener(ev, fn); }
+on('unit-chk', 'change', e => {
   cfg('metric', !e.target.checked);
-  document.querySelector('.unit-btn').textContent = S.cfg.metric ? 'מטרים' : 'פיט';
+  const ub = document.querySelector('.unit-btn'); if (ub) ub.textContent = S.cfg.metric ? 'מטרים' : 'פיט';
   reRenderActiveTab();
 });
-document.getElementById('alert-toggle').addEventListener('change', async e => {
-  const ok = await enableAlerts(e.target.checked);
+on('alert-toggle', 'change', async e => {
+  await enableAlerts(e.target.checked);
   e.target.checked = S.cfg.alertsOn;
 });
-document.getElementById('alert-height').addEventListener('input', e => cfg('alertH', +e.target.value));
-document.getElementById('alert-start').addEventListener('input', e => cfg('alertStart', e.target.value));
-document.getElementById('alert-end').addEventListener('input', e => cfg('alertEnd', e.target.value));
-document.getElementById('alert-spot').addEventListener('change', e => cfg('alertSpot', e.target.value));
-document.getElementById('beach-search').addEventListener('input', e => renderBeaches(e.target.value));
+on('alert-height', 'input', e => cfg('alertH', +e.target.value));
+on('alert-start',  'input', e => cfg('alertStart', e.target.value));
+on('alert-end',    'input', e => cfg('alertEnd', e.target.value));
+on('alert-spot', 'change', e => cfg('alertSpot', e.target.value));
+on('wind-unit-chk', 'change', e => {
+  cfg('windUnit', e.target.checked ? 'knots' : 'kmh');
+  reRenderActiveTab();
+});
+on('wind-alert-toggle', 'change', async e => {
+  if (e.target.checked) {
+    const perm = Notification.permission==='granted' ? 'granted' : await Notification.requestPermission();
+    cfg('windAlertOn', perm === 'granted');
+  } else { cfg('windAlertOn', false); }
+  e.target.checked = S.cfg.windAlertOn;
+});
+on('wind-alert-speed', 'input', e => cfg('windAlertSpeed', +e.target.value));
+on('beach-search', 'input', e => renderBeaches(e.target.value));
 
 /* ══════════════════════════════════════
    HELPER
@@ -884,6 +1068,9 @@ function el(id) { return document.getElementById(id); }
 ══════════════════════════════════════ */
 // Set unit button text
 document.querySelector('.unit-btn').textContent = S.cfg.metric ? 'מטרים' : 'פיט';
+
+// Init surf badge
+updateSurfBadge();
 
 // Start
 renderHome();

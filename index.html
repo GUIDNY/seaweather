@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" href="styles.css?v=4"/>
+  <link rel="stylesheet" href="styles.css?v=12"/>
 </head>
 <body>
 
@@ -25,6 +25,10 @@
       <button class="tnb" data-action="tab" data-id="saved">⭐ שמורים</button>
       <button class="tnb" data-action="tab" data-id="profile">👤 פרופיל</button>
     </nav>
+    <button id="surf-mode-badge" class="surf-mode-badge" data-action="tab" data-id="profile" title="הפרופיל שלי">
+      <img id="smb-img" class="smb-img" src="" alt="" onerror="this.style.display='none'"/>
+      <span id="smb-emoji" class="smb-emoji">🏄‍♂️</span>
+    </button>
     <button class="unit-btn" data-action="toggleUnit">מטרים</button>
   </div>
 </header>
@@ -65,8 +69,9 @@
           <div><span class="micro">Forecast</span><h2>תחזית שבועית — <span id="fc-name"></span></h2></div>
           <button id="hero-open-btn" class="text-btn" data-action="open" data-id="">פרטים מלאים ←</button>
         </div>
-        <div class="fc-head"><span>יום</span><span>גובה ומצב</span><span>רוח</span><span>ציון</span></div>
+        <div class="fc-head"><span>יום</span><span id="fc-head-label">גובה ומצב</span><span>רוח</span><span>ציון</span></div>
         <div id="fc-list"></div>
+        <button class="surf-legend-link" data-action="surfLegend">מקרא</button>
       </div>
 
       <!-- Beaches mini-list -->
@@ -99,113 +104,137 @@
 
   <!-- ══ PROFILE ══ -->
   <div id="tab-profile" class="tab">
-    <div class="container narrow">
-      <div class="sec-title mt8">הגדרות ופרופיל</div>
+    <div class="np-page">
 
-      <!-- Account card (shown/hidden by JS) -->
-      <div id="account-card" class="card pcard account-card">
-        <div id="account-signed-out">
-          <div class="micro mb6">חשבון משתמש</div>
-          <p style="font-size:13px;color:#6b7c93;margin-bottom:14px;">התחבר כדי לסנכרן חופים שמורים והגדרות בין מכשירים.</p>
-
-          <!-- Auth method tabs -->
-          <div class="auth-tabs">
-            <button class="auth-tab active" data-action="authTab" data-tab="apple">
-              <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M10.7 1.6c.1.8-.3 1.6-.8 2.1-.5.6-1.3 1-2.1.9-.1-.7.2-1.5.8-2 .5-.6 1.4-1 2.1-1zm2.8 9.4c-.4.8-.9 1.5-1.5 2.1-.6.5-1.1.7-1.6.7-.6 0-.9-.2-1.5-.5-.6-.3-1.1-.5-1.6-.5s-1 .2-1.6.5c-.6.3-1 .5-1.5.5-.6 0-1.1-.2-1.7-.7-1.3-1.3-2.1-3.2-2.1-5 0-2.8 1.8-4.3 3.6-4.3.6 0 1.3.2 1.8.6.4.2.7.4.9.4.1 0 .4-.1 1-.5.6-.3 1.2-.5 1.9-.5.9 0 1.7.4 2.2 1-.8.5-1.3 1.3-1.3 2.2 0 1 .6 1.8 1.4 2.3-.2.5-.5 1-.8 1.7z"/></svg>
-              Apple
-            </button>
-            <button class="auth-tab" data-action="authTab" data-tab="email">
-              <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M2 3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2zm0 1h12l-6 4.5L2 4zm0 1.75 5.5 3.67a1 1 0 0 0 1 0L14 5.75V11H2V5.75z"/></svg>
-              אימייל
-            </button>
-          </div>
-
-          <!-- Apple pane -->
-          <div id="auth-pane-apple">
-            <button class="siwa-btn" data-action="signInWithApple">
-              <svg viewBox="0 0 20 20" fill="white"><path d="M13.4 2c.1 1-.3 2-1 2.7-.7.7-1.7 1.2-2.7 1.1-.1-.9.3-1.9 1-2.6C11.4 2.5 12.5 2 13.4 2zm3.5 11.8c-.5 1-1.1 1.9-1.9 2.6-.7.6-1.4.9-2 .9-.7 0-1.1-.2-1.9-.6-.7-.4-1.3-.6-2-.6s-1.3.2-2 .6c-.7.4-1.2.6-1.9.6-.7 0-1.4-.3-2.1-.9-1.7-1.6-2.7-4-2.7-6.3 0-3.5 2.3-5.4 4.5-5.4.8 0 1.6.3 2.3.7.5.3.9.5 1.1.5s.6-.2 1.2-.6c.8-.4 1.6-.7 2.4-.6 1.2.1 2.1.5 2.8 1.3-1 .6-1.6 1.6-1.6 2.8 0 1.3.7 2.3 1.7 3-.3.7-.6 1.3-1 2z"/></svg>
-              המשך עם Apple
-            </button>
-          </div>
-
-          <!-- Email pane -->
-          <div id="auth-pane-email" style="display:none">
-            <div class="auth-mode-row">
-              <button class="auth-mode-btn active" data-action="authMode" data-mode="login">כניסה</button>
-              <button class="auth-mode-btn" data-action="authMode" data-mode="register">הרשמה</button>
-            </div>
-            <div id="auth-name-row" style="display:none;margin-bottom:8px">
-              <input id="auth-name" type="text" class="auth-input" placeholder="שם (אופציונלי)" autocomplete="name" />
-            </div>
-            <input id="auth-email" type="email" class="auth-input" placeholder="כתובת אימייל" dir="ltr" autocomplete="email" style="margin-bottom:8px" />
-            <input id="auth-password" type="password" class="auth-input" placeholder="סיסמה (לפחות 8 תווים)" dir="ltr" autocomplete="current-password" style="margin-bottom:10px" />
-            <button class="auth-submit-btn" data-action="submitEmailAuth">כניסה</button>
-            <div id="auth-error" style="font-size:12px;color:#ef476f;margin-top:8px;min-height:16px;text-align:center"></div>
-          </div>
+      <!-- ── Header card: avatar + name + auth ── -->
+      <div class="np-card np-hcard">
+        <div class="np-avatar-ring">
+          <img id="prof-avatar-img" class="np-avatar-img" src="" alt="" onerror="this.style.display='none'"/>
+          <span id="prof-avatar-emoji" class="np-avatar-emoji">🏄‍♂️</span>
         </div>
-        <div id="account-signed-in" style="display:none">
-          <div class="micro mb6">מחובר</div>
-          <div id="account-name" style="font-size:16px;font-weight:800;margin-bottom:4px;"></div>
-          <div id="account-email" style="font-size:13px;color:#6b7c93;margin-bottom:14px;"></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="outline-btn" data-action="syncCloud">☁️ סנכרן עכשיו</button>
-            <button class="outline-btn" data-action="signOut">יציאה</button>
-            <button class="danger-btn" data-action="deleteAccount">מחק חשבון</button>
+        <div id="prof-dname" class="np-dname">גולש גלים</div>
+        <div id="prof-dsub" class="np-dsub">גלים · גלשן · סאפ</div>
+
+        <!-- NOT logged in: email auth form -->
+        <div id="np-auth-out">
+          <div class="auth-mode-row" style="max-width:260px;margin:0 auto 12px">
+            <button class="auth-mode-btn active" data-action="authMode" data-mode="login">כניסה</button>
+            <button class="auth-mode-btn" data-action="authMode" data-mode="register">הרשמה</button>
           </div>
-          <div id="sync-status" style="font-size:12px;color:#888;margin-top:8px;"></div>
+          <div id="auth-name-row" style="display:none">
+            <input id="auth-name" type="text" class="np-inp" placeholder="שם (אופציונלי)" autocomplete="name"/>
+          </div>
+          <input id="auth-email" type="email" class="np-inp" placeholder="כתובת אימייל" dir="ltr" autocomplete="email"/>
+          <input id="auth-password" type="password" class="np-inp" placeholder="סיסמה (לפחות 8 תווים)" dir="ltr" autocomplete="current-password"/>
+          <button class="auth-submit-btn" data-action="submitEmailAuth">כניסה</button>
+          <div id="auth-error" class="np-err"></div>
+        </div>
+
+        <!-- Logged in: user info -->
+        <div id="np-auth-in" style="display:none">
+          <div id="np-acc-email" class="np-acc-email"></div>
+          <div class="np-acc-btns">
+            <button class="np-small-btn" data-action="syncCloud">☁️ סנכרן</button>
+            <button class="np-small-btn np-danger-btn" data-action="signOut">יציאה</button>
+            <button class="np-small-btn np-danger-btn" data-action="deleteAccount">מחק</button>
+          </div>
+          <div id="sync-status" class="np-sync-status"></div>
         </div>
       </div>
 
-      <!-- Primary beach -->
-      <div class="card pcard">
-        <div class="micro mb6">חוף ראשי לתחזית</div>
+      <!-- ── Surf style ── -->
+      <div class="np-card">
+        <div class="np-card-title">סגנון גלישה</div>
+        <div class="ssb-grid">
+          <button class="ssb off" data-action="setSurfType" data-id="waves">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="17" cy="6" r="2"/><path d="M15 8l-2 3.5-3 .5"/>
+              <path d="M2 17c2.5-2.5 5-2.5 7.5 0s5 2.5 7.5 0 4-2.5 5-2"/>
+            </svg>
+            <span>גלים</span>
+          </button>
+          <button class="ssb off" data-action="setSurfType" data-id="wind">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+              <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+              <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+            </svg>
+            <span>רוח</span>
+          </button>
+          <button class="ssb off" data-action="setSurfType" data-id="both">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M2 8c1.5-3 3-3 4.5 0S9 11 10.5 8s3-3 4.5 0 3 3 4.5 0"/>
+              <path d="M2 15c1.5-3 3-3 4.5 0S9 18 10.5 15s3-3 4.5 0 3 3 4.5 0"/>
+            </svg>
+            <span>גלים ורוח</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Home beach ── -->
+      <div class="np-card">
+        <div class="np-card-title">חוף הבית</div>
         <div id="spot-list" class="spot-chips"></div>
       </div>
 
-      <!-- Units -->
-      <div class="card pcard">
-        <div class="micro mb6">יחידות מדידה</div>
-        <div class="toggle-row">
-          <span>מטרים (מ׳)</span>
-          <label class="switch">
-            <input id="unit-chk" type="checkbox"/>
-            <span class="slider"></span>
-          </label>
-          <span>פיט (ft)</span>
+      <!-- ── Wave alerts ── -->
+      <div class="np-card">
+        <div class="np-card-title-row">
+          <span class="np-card-title">🔔 התראות גלים</span>
+          <label class="switch"><input id="alert-toggle" type="checkbox"/><span class="slider"></span></label>
+        </div>
+        <div class="field-grid" style="margin-top:14px">
+          <label class="field"><span>גובה מינימום (מטרים)</span><input id="alert-height" type="number" min="0.2" max="5" step="0.1" value="0.8"/></label>
+          <label class="field"><span>חוף</span><select id="alert-spot"></select></label>
+          <label class="field"><span>משעה</span><input id="alert-start" type="time" value="06:00"/></label>
+          <label class="field"><span>עד שעה</span><input id="alert-end" type="time" value="20:00"/></label>
+        </div>
+        <button class="primary-btn" data-action="testAlert" style="margin-top:8px">שלח התראת ניסיון</button>
+        <div id="alert-log" class="alert-log">התראות כבויות.</div>
+      </div>
+
+      <!-- ── Wind alerts ── -->
+      <div class="np-card">
+        <div class="np-card-title-row">
+          <span class="np-card-title">💨 התראות רוח</span>
+          <label class="switch"><input id="wind-alert-toggle" type="checkbox"/><span class="slider"></span></label>
+        </div>
+        <label class="field" style="margin-top:14px">
+          <span>מהירות מינימום (קשר)</span>
+          <input id="wind-alert-speed" type="number" min="5" max="40" step="1" value="15"/>
+        </label>
+      </div>
+
+      <!-- ── Units ── -->
+      <div class="np-card">
+        <div class="np-card-title">יחידות מדידה</div>
+        <div class="np-trow">
+          <span>גלים</span>
+          <div class="np-trow-ctrl">
+            <span class="np-trow-opt">מ׳</span>
+            <label class="switch"><input id="unit-chk" type="checkbox"/><span class="slider"></span></label>
+            <span class="np-trow-opt">ft</span>
+          </div>
+        </div>
+        <div class="np-trow" style="border-bottom:none">
+          <span>רוח</span>
+          <div class="np-trow-ctrl">
+            <span class="np-trow-opt">קמ"ש</span>
+            <label class="switch"><input id="wind-unit-chk" type="checkbox"/><span class="slider"></span></label>
+            <span class="np-trow-opt">קשר</span>
+          </div>
         </div>
       </div>
 
-      <!-- Alerts -->
-      <div class="card pcard">
-        <div class="micro mb6">התראות גלישה</div>
-        <div class="toggle-row mb12">
-          <span>הפעל התראות</span>
-          <label class="switch">
-            <input id="alert-toggle" type="checkbox"/>
-            <span class="slider"></span>
-          </label>
+      <!-- ── Admin (only for bd12123@gmail.com) ── -->
+      <div id="admin-section" class="np-card" style="display:none">
+        <div class="np-card-title-row" style="margin-bottom:14px">
+          <span class="np-card-title">⚙️ לוח ניהול</span>
+          <button class="np-small-btn" data-action="reloadAdminStats">רענן</button>
         </div>
-        <div class="field-grid">
-          <label class="field">
-            <span>גובה מינימום</span>
-            <input id="alert-height" type="number" min="0.2" max="5" step="0.1" value="0.8"/>
-          </label>
-          <label class="field">
-            <span>חוף להתראה</span>
-            <select id="alert-spot"></select>
-          </label>
-          <label class="field">
-            <span>משעה</span>
-            <input id="alert-start" type="time" value="06:00"/>
-          </label>
-          <label class="field">
-            <span>עד שעה</span>
-            <input id="alert-end" type="time" value="20:00"/>
-          </label>
-        </div>
-        <button class="primary-btn" data-action="testAlert">🔔 שלח התראת בדיקה</button>
-        <div id="alert-log" class="alert-log">התראות כבויות.</div>
+        <div id="admin-content" class="admin-content">טוען...</div>
       </div>
+
     </div>
   </div>
 
@@ -216,22 +245,30 @@
   <div id="detail-inner"></div>
 </div>
 
-<!-- ══ SURF SUITABILITY POPUP ══ -->
+<!-- ══ SURF LEGEND POPUP ══ -->
 <div id="surf-popup" class="surf-popup hidden" aria-modal="true" role="dialog">
   <div class="surf-popup-bg" data-action="closePopup"></div>
   <div class="surf-popup-card">
     <button class="surf-popup-close" data-action="closePopup" aria-label="סגור">✕</button>
-    <div id="popup-emoji" class="popup-emoji"></div>
-    <h3 id="popup-title" class="popup-title"></h3>
-    <div id="popup-meta" class="popup-meta"></div>
-    <p id="popup-desc" class="popup-desc"></p>
+    <h3 class="popup-title">מתאים לאיזה גלישה?</h3>
     <div class="popup-levels">
-      <div class="popup-lvl" data-active="0">🚫 עד 80ס"מ</div>
-      <div class="popup-lvl" data-active="1">🏄 80–120</div>
-      <div class="popup-lvl" data-active="2">🏄‍♂️ 120–200</div>
-      <div class="popup-lvl" data-active="3">🔥 200+</div>
+      <div class="popup-lvl-row">
+        <span class="popup-lvl-badge lvl0">עד 80ס"מ</span>
+        <span>לא מתאים לגלישה</span>
+      </div>
+      <div class="popup-lvl-row">
+        <span class="popup-lvl-badge lvl1">80–120ס"מ</span>
+        <span>מתאים לסאפ ומתחילים</span>
+      </div>
+      <div class="popup-lvl-row">
+        <span class="popup-lvl-badge lvl2">120–200ס"מ</span>
+        <span>שווה לכולם</span>
+      </div>
+      <div class="popup-lvl-row">
+        <span class="popup-lvl-badge lvl3">200ס"מ ומעלה</span>
+        <span>מנוסים בלבד</span>
+      </div>
     </div>
-    <button id="popup-open-btn" class="popup-open-btn" data-action="openFromPopup">📊 פרטים מלאים</button>
   </div>
 </div>
 
@@ -257,6 +294,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>
