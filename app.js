@@ -873,7 +873,7 @@ function renderAccountCard() {
     const em = el('np-acc-email') || el('account-email');
     const nm = el('account-name');
     if (em) em.textContent = AUTH.user.email || AUTH.user.name || '';
-    if (nm) nm.textContent = AUTH.user.name || 'Surfy User';
+    if (nm) nm.textContent = AUTH.user.name || 'Wavio User';
     const adminSec = el('admin-section');
     if (adminSec) {
       const isAdmin = AUTH.user.email === 'bd12123@gmail.com';
@@ -1001,7 +1001,7 @@ document.addEventListener('click', function(e) {
       break;
     }
     case 'testAlert': {
-      if (Notification.permission==='granted') new Notification('🦊 Surfy',{body:'ככה תיראה התראה כשיש גלים טובים!'});
+      if (Notification.permission==='granted') new Notification('🌊 Wavio',{body:'ככה תיראה התראה כשיש גלים טובים!'});
       else el('alert-log').textContent='הפעל קודם את ההתראות למעלה.';
       break;
     }
