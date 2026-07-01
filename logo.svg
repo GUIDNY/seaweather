@@ -1,22 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="22" fill="#0a2540"/>
-  <!-- Fox ears -->
-  <polygon points="22,48 30,20 42,42" fill="#e8631a"/>
-  <polygon points="58,42 70,20 78,48" fill="#e8631a"/>
-  <polygon points="26,46 31,28 39,42" fill="#fff8f0"/>
-  <polygon points="61,42 69,28 74,46" fill="#fff8f0"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Background -->
+  <rect width="120" height="120" rx="26" fill="#0a2540"/>
+
+  <!-- Fox ears (pointed, above head) -->
+  <polygon points="32,44 24,18 46,38" fill="#e8631a"/>
+  <polygon points="88,44 96,18 74,38" fill="#e8631a"/>
+  <!-- Inner ear -->
+  <polygon points="35,42 29,24 44,38" fill="#f5c09a"/>
+  <polygon points="85,42 91,24 76,38" fill="#f5c09a"/>
+
+  <!-- Hoodie body (dark navy) -->
+  <path d="M22 110 Q22 76 60 72 Q98 76 98 110 Z" fill="#0f3460"/>
+  <!-- Hoodie center seam / pocket area -->
+  <rect x="52" y="84" width="16" height="20" rx="3" fill="#0a2540" opacity="0.5"/>
+  <!-- "W" letter on hoodie -->
+  <text x="60" y="101" font-family="'Arial Black', Arial, sans-serif" font-size="13" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-1">W</text>
+
   <!-- Fox head -->
-  <ellipse cx="50" cy="56" rx="26" ry="24" fill="#e8631a"/>
-  <!-- White face -->
-  <ellipse cx="50" cy="62" rx="16" ry="13" fill="#fff8f0"/>
+  <ellipse cx="60" cy="60" rx="28" ry="26" fill="#e8631a"/>
+
+  <!-- White snout area -->
+  <ellipse cx="60" cy="67" rx="17" ry="13" fill="#fff4e8"/>
+
   <!-- Eyes -->
-  <circle cx="42" cy="52" r="4.5" fill="#1a1a2e"/>
-  <circle cx="58" cy="52" r="4.5" fill="#1a1a2e"/>
-  <circle cx="43.5" cy="50.5" r="1.5" fill="white"/>
-  <circle cx="59.5" cy="50.5" r="1.5" fill="white"/>
+  <circle cx="49" cy="56" r="5" fill="#1a1a2e"/>
+  <circle cx="71" cy="56" r="5" fill="#1a1a2e"/>
+  <!-- Eye shine -->
+  <circle cx="51" cy="54" r="1.8" fill="white"/>
+  <circle cx="73" cy="54" r="1.8" fill="white"/>
+
   <!-- Nose -->
-  <ellipse cx="50" cy="60" rx="3" ry="2" fill="#1a1a2e"/>
-  <!-- Wave on surfboard shape at bottom -->
-  <path d="M24 82 Q37 76 50 82 Q63 88 76 82" stroke="#00b4d8" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <path d="M30 90 Q42 85 54 90 Q66 95 78 90" stroke="#00b4d8" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".6"/>
+  <ellipse cx="60" cy="65" rx="3.5" ry="2.5" fill="#1a1a2e"/>
+
+  <!-- Surfboard (held at side, angled) -->
+  <g transform="rotate(-25,104,88)">
+    <rect x="96" y="62" width="10" height="38" rx="5" fill="#00b4d8"/>
+    <rect x="97" y="70" width="8" height="5" rx="1" fill="white" opacity="0.5"/>
+    <rect x="97" y="88" width="8" height="3" rx="1" fill="#ff6b35" opacity="0.8"/>
+  </g>
 </svg>
