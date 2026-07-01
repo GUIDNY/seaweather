@@ -97,7 +97,12 @@ function score(wh, wp, ws, wd, offDir, swh=0, swp=0, wwh=0) {
   return Math.round(clamp(s, 0, 10) * 10) / 10;
 }
 function scoreColor(s) { return s>=7.5?'#06d6a0':s>=5.5?'#00b4d8':s>=4.0?'#ffd166':s>=2.8?'#f4a261':s>=1.5?'#adb5bd':'#ef476f'; }
-function scoreLbl(s) { return s>=7.5?'מצוין':s>=5.5?'טוב מאוד':s>=4.0?'טוב':s>=2.8?'סבבה':s>=1.5?'גלי':'שטוח'; }
+function scoreLbl(s) {
+  if (S.cfg?.surfType === 'wind') {
+    return s>=7.5?'מצוין':s>=5.5?'טוב מאוד':s>=4.0?'טוב לרוח':s>=2.8?'ישים':s>=1.5?'מועט':'חסר רוח';
+  }
+  return s>=7.5?'מצוין':s>=5.5?'טוב מאוד':s>=4.0?'טוב':s>=2.8?'סבבה':s>=1.5?'גלי':'שטוח';
+}
 
 function ring(sc, sz, sw, col) {
   sz=sz||54; sw=sw||5; col=col||scoreColor(sc);
@@ -283,7 +288,13 @@ async function renderHome() {
 
 function updateHomeHero(b, data) {
   const cur = data.cur, sc = cur.sc, col = scoreColor(sc);
-  el('hero-desc').textContent = `${scoreLbl(sc)} לגלישה · ${fmtHD(cur.wh)} · ${fmtWind(cur.ws)} · ${cur.temp.toFixed(0)}°C`;
+  const isWind = S.cfg.surfType === 'wind';
+  if (isWind) {
+    const wl = windLbl(cur.ws);
+    el('hero-desc').textContent = `${scoreLbl(sc)} · ${fmtWind(cur.ws)} · ${d2cFull(cur.wd2)} · ${cur.temp.toFixed(0)}°C`;
+  } else {
+    el('hero-desc').textContent = `${scoreLbl(sc)} לגלישה · ${fmtHD(cur.wh)} · ${fmtWind(cur.ws)} · ${cur.temp.toFixed(0)}°C`;
+  }
   el('hero-ring').innerHTML = ring(sc,78,7,col) + `<div class="ring-num large" style="color:${col};">${sc.toFixed(1)}</div>`;
   const heroBtn = el('hero-open-btn');
   if (heroBtn) heroBtn.dataset.id = b.id;
@@ -453,7 +464,8 @@ async function renderSaved() {
       const data = await fetchBeach(b);
       const sc = data.cur.sc, col = scoreColor(sc);
       const st = el(`sv-stat-${b.id}`);
-      if (st) st.innerHTML = `<span style="color:${col};font-weight:800;">${scoreLbl(sc)}</span> · 🌊 ${dispHFull(data.cur.wh)} · 💨 ${fmtWind(data.cur.ws)}`;
+      const _isW = S.cfg.surfType === 'wind';
+      if (st) st.innerHTML = `<span style="color:${col};font-weight:800;">${scoreLbl(sc)}</span> · ${_isW ? `💨 ${fmtWind(data.cur.ws)} · ${windLbl(data.cur.ws).lbl}` : `🌊 ${dispHFull(data.cur.wh)} · 💨 ${fmtWind(data.cur.ws)}`}`;
     } catch {}
   });
 }
@@ -588,7 +600,7 @@ function renderDetail(b, data) {
 
     <div class="d-body">
       <div style="margin-bottom:14px;">
-        <span style="background:${col}22;color:${col};padding:5px 14px;border-radius:20px;font-size:14px;font-weight:800;">${scoreLbl(sc)} לגלישה</span>
+        <span style="background:${col}22;color:${col};padding:5px 14px;border-radius:20px;font-size:14px;font-weight:800;">${scoreLbl(sc)} ${S.cfg.surfType==='wind'?'לוינד':'לגלישה'}</span>
       </div>
 
       <div class="stat-grid">
