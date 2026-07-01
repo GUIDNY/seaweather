@@ -478,11 +478,18 @@ function renderProfile() {
   const st = S.cfg.surfType || 'waves';
   const stData = SURF_TYPES[st];
 
-  // Avatar circle
-  const avatarImg = el('prof-avatar-img');
-  if (avatarImg) { avatarImg.style.display = ''; avatarImg.src = stData.img; avatarImg.onerror = () => { avatarImg.style.display='none'; }; }
+  // Avatar circle — show image only, hide emoji when image loads
   const avatarEmoji = el('prof-avatar-emoji');
-  if (avatarEmoji) avatarEmoji.textContent = stData.emoji;
+  const avatarImg = el('prof-avatar-img');
+  if (avatarImg) {
+    avatarImg.style.display = '';
+    avatarImg.src = stData.img;
+    if (avatarEmoji) avatarEmoji.style.display = 'none';
+    avatarImg.onload  = () => { if (avatarEmoji) avatarEmoji.style.display = 'none'; };
+    avatarImg.onerror = () => { avatarImg.style.display = 'none'; if (avatarEmoji) { avatarEmoji.style.display = ''; avatarEmoji.textContent = stData.emoji; } };
+  } else if (avatarEmoji) {
+    avatarEmoji.textContent = stData.emoji;
+  }
 
   // Name + subtitle
   const subtitleMap = { waves:'גלים · גלשן · סאפ', wind:'ווינד · קייט' };
@@ -532,13 +539,16 @@ function updateSurfBadge() {
   const badge = el('surf-mode-badge');
   if (badge) badge.style.background = stData.grad;
   const img = el('smb-img');
+  const emoji = el('smb-emoji');
   if (img) {
     img.src = stData.img;
     img.style.display = '';
-    img.onerror = () => { img.style.display = 'none'; };
+    if (emoji) emoji.style.display = 'none';
+    img.onload  = () => { if (emoji) emoji.style.display = 'none'; };
+    img.onerror = () => { img.style.display = 'none'; if (emoji) { emoji.style.display = ''; emoji.textContent = stData.emoji; } };
+  } else if (emoji) {
+    emoji.textContent = stData.emoji;
   }
-  const emoji = el('smb-emoji');
-  if (emoji) emoji.textContent = stData.emoji;
 }
 
 /* ══════════════════════════════════════
