@@ -1,5 +1,5 @@
-const CACHE = 'ww-v13';
-const ASSETS = ['./', './index.html', './styles.css?v=13', './app.js?v=13', './manifest.json'];
+const CACHE = 'ww-v14';
+const ASSETS = ['./', './index.html', './styles.css?v=13', './app.js?v=13', './manifest.json', './logo.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -27,5 +27,5 @@ self.addEventListener('fetch', e => {
   })));
 });
 self.addEventListener('message', e => {
-  if (e.data?.type === 'notify') self.registration.showNotification(e.data.title, { body: e.data.body, icon: './icon.png' });
+  if (e.data?.type === 'notify') self.registration.showNotification(e.data.title, { body: e.data.body, icon: './icon-192.png' });
 });
