@@ -540,6 +540,18 @@ button{cursor:pointer;font-family:inherit}
 .np-danger-btn{border-color:#ffd0d8;color:#ef476f}
 .np-danger-btn:hover{background:#ef476f;color:#fff;border-color:#ef476f}
 .np-sync-status{font-size:11px;color:var(--muted);margin-top:8px;min-height:14px}
+.np-delete-btn{
+  width:100%;margin-top:16px;padding:14px;border-radius:14px;
+  border:2px solid #ef476f;background:#fff5f7;
+  cursor:pointer;font-family:'Heebo',sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:all .18s;
+}
+.np-delete-btn:hover{background:#ef476f;border-color:#ef476f}
+.np-delete-btn:hover .np-delete-he,
+.np-delete-btn:hover .np-delete-en{color:#fff}
+.np-delete-he{font-size:15px;font-weight:800;color:#ef476f}
+.np-delete-en{font-size:11px;font-weight:600;color:#ef476f;opacity:.75;letter-spacing:.3px}
 /* card titles */
 .np-card-title{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:14px}
 .np-card-title-row{
