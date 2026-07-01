@@ -12,9 +12,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" href="styles.css?v=12"/>
+  <link rel="stylesheet" href="styles.css?v=13"/>
 </head>
 <body>
+<script>
+// Clear stale SW caches on every load to avoid version mismatches
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r) { r.update(); });
+  });
+  caches.keys().then(function(keys) {
+    keys.filter(function(k) { return k !== 'ww-v13'; }).forEach(function(k) { caches.delete(k); });
+  });
+}
+</script>
 
 <header id="topbar">
   <div class="tb-inner">
@@ -294,6 +305,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="app.js?v=12"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

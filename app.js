@@ -772,7 +772,7 @@ function checkAlert() {
 const API = '';  // same origin on Vercel
 const AUTH = {
   token: localStorage.getItem('surfy-token') || null,
-  user: JSON.parse(localStorage.getItem('surfy-user') || 'null'),
+  user: (() => { try { return JSON.parse(localStorage.getItem('surfy-user') || 'null'); } catch { return null; } })(),
 };
 
 function isLoggedIn() { return !!AUTH.token; }
@@ -851,14 +851,17 @@ async function deleteAccount() {
 }
 
 function renderAccountCard() {
-  const out = el('np-auth-out');
-  const inp = el('np-auth-in');
+  // Support both new HTML (np-*) and old HTML (account-*) during SW transition
+  const out = el('np-auth-out') || el('account-signed-out');
+  const inp = el('np-auth-in')  || el('account-signed-in');
   if (!out || !inp) return;
   if (isLoggedIn() && AUTH.user) {
     out.style.display = 'none';
     inp.style.display = '';
-    const em = el('np-acc-email');
+    const em = el('np-acc-email') || el('account-email');
+    const nm = el('account-name');
     if (em) em.textContent = AUTH.user.email || AUTH.user.name || '';
+    if (nm) nm.textContent = AUTH.user.name || 'Surfy User';
     const adminSec = el('admin-section');
     if (adminSec) {
       const isAdmin = AUTH.user.email === 'bd12123@gmail.com';
