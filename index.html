@@ -25,7 +25,7 @@ if ('serviceWorker' in navigator) {
     regs.forEach(function(r) { r.update(); });
   });
   caches.keys().then(function(keys) {
-    keys.filter(function(k) { return k !== 'ww-v15'; }).forEach(function(k) { caches.delete(k); });
+    keys.filter(function(k) { return k !== 'ww-v16'; }).forEach(function(k) { caches.delete(k); });
   });
 }
 </script>
@@ -40,8 +40,8 @@ if ('serviceWorker' in navigator) {
       <button class="tnb" data-action="tab" data-id="profile">👤 פרופיל</button>
     </nav>
     <button id="surf-mode-badge" class="surf-mode-badge" data-action="tab" data-id="profile" title="הפרופיל שלי">
-      <img id="smb-img" class="smb-img" src="" alt="" onerror="this.style.display='none'"/>
-      <span id="smb-emoji" class="smb-emoji">🏄‍♂️</span>
+      <img id="smb-img" class="smb-img" src="" alt=""/>
+      <span id="smb-emoji" class="smb-emoji" style="display:none"></span>
     </button>
     <button class="unit-btn" data-action="toggleUnit">מטרים</button>
   </div>
@@ -123,8 +123,8 @@ if ('serviceWorker' in navigator) {
       <!-- ── Header card: avatar + name + auth ── -->
       <div class="np-card np-hcard">
         <div class="np-avatar-ring">
-          <img id="prof-avatar-img" class="np-avatar-img" src="" alt="" onerror="this.style.display='none'"/>
-          <span id="prof-avatar-emoji" class="np-avatar-emoji">🏄‍♂️</span>
+          <img id="prof-avatar-img" class="np-avatar-img" src="" alt=""/>
+          <span id="prof-avatar-emoji" class="np-avatar-emoji" style="display:none"></span>
         </div>
         <div id="prof-dname" class="np-dname">גולש גלים</div>
         <div id="prof-dsub" class="np-dsub">גלים · גלשן · סאפ</div>
@@ -301,6 +301,6 @@ if ('serviceWorker' in navigator) {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="app.js?v=14"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
