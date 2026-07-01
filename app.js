@@ -22,7 +22,7 @@ const DEFAULTS = { spotId:'netanya', savedIds:['netanya'], metric:true, surfType
 
 const SURF_TYPES = {
   waves: { label:'גלים', emoji:'🏄‍♂️', heroTitle:'גולש גלים', color:'#0077b6', grad:'linear-gradient(135deg,#0077b6,#00b4d8)', img:'fox-surf.png' },
-  wind:  { label:'רוח',  emoji:'🪁',   heroTitle:'גולש רוח',  color:'#e85d04', grad:'linear-gradient(135deg,#c44b00,#e85d04)',  img:'fox-wind.png' },
+  wind:  { label:'רוח',  emoji:'🪁',   heroTitle:'גולש רוח',  color:'#0096c7', grad:'linear-gradient(135deg,#0077b6,#0096c7)',  img:'fox-wind.png' },
 };
 
 function loadSettings() {
@@ -536,8 +536,7 @@ function renderProfile() {
 function updateSurfBadge() {
   const st = S.cfg.surfType || 'waves';
   const stData = SURF_TYPES[st];
-  const badge = el('surf-mode-badge');
-  if (badge) badge.style.background = stData.grad;
+  // badge background stays white (set via CSS)
   const img = el('smb-img');
   const emoji = el('smb-emoji');
   if (img) {
