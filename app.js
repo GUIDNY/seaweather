@@ -888,11 +888,15 @@ function renderAccountCard() {
       adminSec.style.display = isAdmin ? '' : 'none';
       if (isAdmin) loadAdminStats();
     }
+    const delSec = el('np-delete-section');
+    if (delSec) delSec.style.display = '';
   } else {
     out.style.display = '';
     inp.style.display = 'none';
     const adminSec = el('admin-section');
     if (adminSec) adminSec.style.display = 'none';
+    const delSec = el('np-delete-section');
+    if (delSec) delSec.style.display = 'none';
   }
 }
 

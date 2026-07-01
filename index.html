@@ -152,10 +152,6 @@ if ('serviceWorker' in navigator) {
             <button class="np-small-btn np-danger-btn" data-action="signOut">יציאה</button>
           </div>
           <div id="sync-status" class="np-sync-status"></div>
-          <button class="np-delete-btn" data-action="deleteAccount">
-            <span class="np-delete-he">🗑️ מחק חשבון</span>
-            <span class="np-delete-en">Delete my account</span>
-          </button>
         </div>
       </div>
 
@@ -239,6 +235,14 @@ if ('serviceWorker' in navigator) {
       </div>
 
     </div>
+
+      <div id="np-delete-section" style="display:none;padding:0 14px 40px;">
+        <button class="np-delete-btn" data-action="deleteAccount">
+          <span class="np-delete-he">🗑️ מחק חשבון</span>
+          <span class="np-delete-en">Delete my account</span>
+        </button>
+      </div>
+
   </div>
 
 </main>
