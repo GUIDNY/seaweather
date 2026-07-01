@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" href="styles.css?v=13"/>
+  <link rel="stylesheet" href="styles.css?v=14"/>
 </head>
 <body>
 <script>
@@ -25,7 +25,7 @@ if ('serviceWorker' in navigator) {
     regs.forEach(function(r) { r.update(); });
   });
   caches.keys().then(function(keys) {
-    keys.filter(function(k) { return k !== 'ww-v14'; }).forEach(function(k) { caches.delete(k); });
+    keys.filter(function(k) { return k !== 'ww-v15'; }).forEach(function(k) { caches.delete(k); });
   });
 }
 </script>
@@ -159,28 +159,14 @@ if ('serviceWorker' in navigator) {
       <!-- ── Surf style ── -->
       <div class="np-card">
         <div class="np-card-title">סגנון גלישה</div>
-        <div class="ssb-grid">
+        <div class="ssb-grid ssb-grid-2">
           <button class="ssb off" data-action="setSurfType" data-id="waves">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="17" cy="6" r="2"/><path d="M15 8l-2 3.5-3 .5"/>
-              <path d="M2 17c2.5-2.5 5-2.5 7.5 0s5 2.5 7.5 0 4-2.5 5-2"/>
-            </svg>
+            <img src="fox-surf.png" class="ssb-fox" alt="גלים"/>
             <span>גלים</span>
           </button>
           <button class="ssb off" data-action="setSurfType" data-id="wind">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
-              <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
-              <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
-            </svg>
+            <img src="fox-wind.png" class="ssb-fox" alt="רוח"/>
             <span>רוח</span>
-          </button>
-          <button class="ssb off" data-action="setSurfType" data-id="both">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <path d="M2 8c1.5-3 3-3 4.5 0S9 11 10.5 8s3-3 4.5 0 3 3 4.5 0"/>
-              <path d="M2 15c1.5-3 3-3 4.5 0S9 18 10.5 15s3-3 4.5 0 3 3 4.5 0"/>
-            </svg>
-            <span>גלים ורוח</span>
           </button>
         </div>
       </div>
@@ -308,6 +294,6 @@ if ('serviceWorker' in navigator) {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="app.js?v=13"></script>
+<script src="app.js?v=14"></script>
 </body>
 </html>

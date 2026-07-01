@@ -548,14 +548,17 @@ button{cursor:pointer;font-family:inherit}
 .np-card-title-row .np-card-title{margin-bottom:0}
 /* surf style grid */
 .ssb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ssb-grid-2{grid-template-columns:repeat(2,1fr)}
 .ssb{
-  display:flex;flex-direction:column;align-items:center;gap:7px;
-  padding:14px 6px;border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:14px 6px 10px;border-radius:16px;
   border:2px solid var(--line);background:#f7f9fb;
   cursor:pointer;transition:all .18s;font-family:'Heebo',sans-serif;
 }
+.ssb-fox{width:72px;height:72px;object-fit:contain;transition:transform .18s}
+.ssb.on .ssb-fox{transform:scale(1.08)}
 .ssb svg{width:28px;height:28px;color:#9aabb8;transition:color .18s}
-.ssb span{font-size:12px;font-weight:700;color:#9aabb8;transition:color .18s}
+.ssb span{font-size:13px;font-weight:800;color:#9aabb8;transition:color .18s}
 .ssb.on{border-color:var(--ocean);background:#e6f5ff}
 .ssb.on svg{color:var(--ocean)}
 .ssb.on span{color:var(--ocean)}
