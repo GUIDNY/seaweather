@@ -21,9 +21,9 @@ const DAYS = ['יום א','יום ב','יום ג','יום ד','יום ה','יו�
 const DEFAULTS = { spotId:'netanya', savedIds:['netanya'], metric:true, surfType:'waves', windUnit:'kmh', alertsOn:false, alertH:0.8, alertStart:'06:00', alertEnd:'20:00', alertSpot:'netanya', windAlertOn:false, windAlertSpeed:15, lastAlertKey:'', lastWindAlertKey:'' };
 
 const SURF_TYPES = {
-  waves: { label:'גלים',   emoji:'🏄‍♂️', heroTitle:'גולש גלים',    color:'#0077b6', grad:'linear-gradient(135deg,#0077b6,#00b4d8)', img:'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80' },
-  wind:  { label:'רוח',    emoji:'🪁',   heroTitle:'גולש רוח',      color:'#e85d04', grad:'linear-gradient(135deg,#c44b00,#e85d04)',  img:'https://images.unsplash.com/photo-1530869590952-3012b8ad6afd?auto=format&fit=crop&w=800&q=80' },
-  both:  { label:'גם וגם', emoji:'🌊',    heroTitle:'גולש הכל',      color:'#06d6a0', grad:'linear-gradient(135deg,#00916e,#06d6a0)',  img:'https://images.unsplash.com/photo-1612025344470-df9818c785a4?auto=format&fit=crop&w=800&q=80' },
+  waves: { label:'גלים',   emoji:'🏄‍♂️', heroTitle:'גולש גלים',    color:'#0077b6', grad:'linear-gradient(135deg,#0077b6,#00b4d8)', img:'fox-surf.png' },
+  wind:  { label:'רוח',    emoji:'🪁',   heroTitle:'גולש רוח',      color:'#e85d04', grad:'linear-gradient(135deg,#c44b00,#e85d04)',  img:'fox-wind.png' },
+  both:  { label:'גם וגם', emoji:'🌊',    heroTitle:'גולש הכל',      color:'#06d6a0', grad:'linear-gradient(135deg,#00916e,#06d6a0)',  img:'fox-surf.png' },
 };
 
 function loadSettings() {
