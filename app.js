@@ -814,15 +814,21 @@ function selectSpot(id) {
    ALERTS
 ══════════════════════════════════════ */
 
-// iOS PWA requires showNotification() via SW — new Notification() silently fails on iOS
+const isNativeApp = window.__isNativeApp === true;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+// Send notification — native app uses iOS UNUserNotificationCenter bridge,
+// PWA uses SW showNotification (works on iOS 16.4+ installed), web falls back to new Notification
 async function swNotify(title, body) {
+  if (isNativeApp) {
+    window.webkit?.messageHandlers?.notify?.postMessage({ title, body });
+    return;
+  }
   try {
     if ('serviceWorker' in navigator) {
       const reg = await navigator.serviceWorker.ready;
-      await reg.showNotification(title, {
-        body, icon: './icon-192.png', badge: './favicon-32.png',
-        dir: 'rtl', lang: 'he'
-      });
+      await reg.showNotification(title, { body, icon:'./icon-192.png', badge:'./favicon-32.png', dir:'rtl', lang:'he' });
     } else {
       new Notification(title, { body });
     }
@@ -831,27 +837,43 @@ async function swNotify(title, body) {
   }
 }
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-
 async function enableAlerts(on) {
   if (!on) { cfg('alertsOn', false); el('alert-log').textContent='התראות כבויות.'; return false; }
+
+  // Native iOS app — permission via UNUserNotificationCenter bridge
+  if (isNativeApp) {
+    return new Promise(resolve => {
+      window.__onNotifyPermission = (granted) => {
+        if (granted) {
+          cfg('alertsOn', true);
+          el('alert-log').textContent = '✅ התראות פעילות!';
+          resolve(true);
+        } else {
+          if (el('alert-toggle')) el('alert-toggle').checked = false;
+          el('alert-log').textContent = '⚠️ לא אושרו התראות. הגדרות ← Wavio ← התראות.';
+          resolve(false);
+        }
+      };
+      window.webkit?.messageHandlers?.notifyPermission?.postMessage({});
+    });
+  }
+
+  // Web / PWA
   if (!('Notification' in window)) {
-    el('alert-log').textContent='הדפדפן לא תומך בהתראות.';
+    el('alert-log').textContent = 'הדפדפן לא תומך בהתראות.';
     return false;
   }
-  // iOS requires PWA installed to Home Screen for notifications
   if (isIOS && !isStandalone) {
-    el('alert-log').innerHTML='⚠️ כדי לקבל התראות ב-iPhone: לחץ <b>שתף ← הוסף למסך הבית</b> ופתח את האפליקציה משם.';
-    el('alert-toggle').checked = false;
+    el('alert-log').innerHTML = '⚠️ ב-iPhone: לחץ <b>שתף ← הוסף למסך הבית</b> ופתח משם.';
+    if (el('alert-toggle')) el('alert-toggle').checked = false;
     return false;
   }
   const perm = Notification.permission==='granted' ? 'granted' : await Notification.requestPermission();
   if (perm !== 'granted') {
-    el('alert-log').textContent='לא אושרו התראות. אפשר בהגדרות הטלפון ← Wavio.';
+    el('alert-log').textContent = '⚠️ לא אושרו התראות. אפשר בהגדרות הדפדפן.';
     return false;
   }
-  cfg('alertsOn', true); el('alert-log').textContent='✅ התראות פעילות!';
+  cfg('alertsOn', true); el('alert-log').textContent = '✅ התראות פעילות!';
   return true;
 }
 
