@@ -5,33 +5,41 @@
 ══════════════════════════════════════ */
 const BEACHES = [
   { id:'eilat',    name:'אילת',   region:'ים סוף',     lat:29.5581, lon:34.9482, mark:'ELT', offDir:270,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/c/ce/North_Beach_Eilat.jpg',
+    photo:'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=85',
     desc:'מפרץ ים סוף עם מים כחולים-ירוקים שקופים לגמרי. שוניות אלמוגים, דגים טרופיים וצבאים ים — אחד מאתרי הצלילה הטובים בעולם. רוח צפונית עקבית בשעות הצהריים הופכת את אילת לגן עדן לגולשי רוח.',
     tags:['🤿 צלילה','🪁 ווינד','☀️ שמש כל השנה'] },
   { id:'caesarea', name:'קיסריה', region:'חוף הכרמל',  lat:32.5000, lon:34.8917, mark:'CSR', offDir:90,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/5/5e/The_high_level_aqueduct_of_Caesarea_built_by_Herod_%2837BC_to_4BC%29%2C_Caesarea_Maritima%2C_Israel_%2815588710799%29.jpg',
+    photo:'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?auto=format&fit=crop&w=1200&q=85',
     desc:'חוף ים-תיכוני רגוע הסמוך לעיר הרומית העתיקה ולאמפיתאטרון ההיסטורי. מים תכולים ונקיים, גלים בינוניים ושפת ים חולית רחבה. מתאים לכל הגילאים ולסאפ-בורד.',
     tags:['🏛️ היסטורי','🏄 סאפ','🌊 גלים נוחים'] },
   { id:'netanya',  name:'נתניה',  region:'השרון',       lat:32.3215, lon:34.8532, mark:'NTY', offDir:90,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/2/2b/PikiWiki_Israel_17539_Netanya_sironit_beach.JPG',
+    photo:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85',
     desc:'חוף עירוני ארוך ומגוון עם טיילת מפורסמת ומעלית לים. גלים ים-תיכוניים טובים למתחילים, מתקני ספורט ים מסודרים ופרומנד עמוס בקיץ.',
     tags:['🌊 גלים','🏄 למתחילים','🛗 מעלית לחוף'] },
   { id:'haifa',    name:'חיפה',   region:'מפרץ חיפה',   lat:32.8056, lon:34.9658, mark:'HFA', offDir:90,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/South_Dado_Beach_-_Hof_HaCarmel_-_Haifa_%281506044661%29.jpg',
+    photo:'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&w=1200&q=85',
     desc:'חוף דדו הידוע — שוקק חיים עם שירותים מלאים, נוף להר הכרמל ולמפרץ. גלים טובים ורוח ים-תיכונית אמינה בשעות אחה"צ, אידיאלי לווינד-סרף ולגלישה.',
     tags:['🪁 ווינד','🏔️ נוף לכרמל','🎯 תשתיות'] },
   { id:'ashdod',   name:'אשדוד',  region:'חוף השפלה',  lat:31.8044, lon:34.6553, mark:'ASH', offDir:90,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/1/14/Ashdod_Beach.jpg',
+    photo:'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=1200&q=85',
     desc:'חוף נרחב ופתוח עם מים נוחים לרחצה. ידוע ברוח ים טובה וגלים קטנים-בינוניים המתאימים לסאפ-בורד, גלשן גדול ולמשפחות עם ילדים.',
     tags:['🏄 סאפ','👨‍👩‍👧 משפחות','💨 רוח טובה'] },
   { id:'ashkelon', name:'אשקלון', region:'חוף השפלה',  lat:31.6688, lon:34.5571, mark:'AKL', offDir:90,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/f/f5/PikiWiki_Israel_53637_the_beach_promenade_in_ashkelon.jpg',
+    photo:'https://images.unsplash.com/photo-1563911302283-d2bc129e7570?auto=format&fit=crop&w=1200&q=85',
     desc:'חוף פראי ויפהפה הגובל בפארק הלאומי. גלים ים-תיכוניים עקביים ומים נקיים, תחושה של חוף ירוק ורחב ידיים. מקום מושלם לבריחה מהעיר.',
     tags:['🌿 פארק','🌊 גלים עקביים','🏖️ חוף פראי'] },
   { id:'nahariya', name:'נהריה',  region:'חוף הצפון',  lat:33.0067, lon:35.0975, mark:'NHR', offDir:90,
-    photo:'https://upload.wikimedia.org/wikipedia/commons/b/ba/Beach_-_Nahariya_Israel_%281370405741%29.jpg',
+    photo:'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=85',
     desc:'החוף הצפוני ביותר בישראל, עם אווירה שקטה ורגועה. מים קרים יותר ורעננים, גלים מוכתבים על ידי הים התיכון הפתוח. מתאים לגולשי ים מנוסים ולאוהבי טבע.',
     tags:['🌊 גלים חופשיים','❄️ מים רעננים','🤫 שקט'] },
+  { id:'tlv-gordon', name:'גורדון',  region:'תל אביב',   lat:32.0832, lon:34.7669, mark:'TLV', offDir:90,
+    photo:'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=1200&q=85',
+    desc:'חוף גורדון הוא הסמל של חוף תל אביב — שוקק חיים, צבעוני ומלא אנרגיה. ליד מתחם הנמל ופרומנד ארוך. מים ים-תיכוניים נעימים, גלים קטנים-בינוניים, מתאים לכולם.',
+    tags:['🌆 עירוני','🏄 לכולם','☀️ טיילת ארוכה'] },
+  { id:'tlv-hilton', name:'הילטון',  region:'תל אביב',   lat:32.0899, lon:34.7685, mark:'HLT', offDir:90,
+    photo:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=85',
+    desc:'חוף הילטון — החוף הצפוני של תל אביב, ידוע בגלים הטובים ביותר בעיר. חוף גלשנים מסורתי, מגנט לגולשים ולכלבים. פחות עמוס ממרכז העיר, עם גלים עקביים מהצפון.',
+    tags:['🏄 גלשנים','🐕 חוף כלבים','🌊 גלים טובים'] },
 ];
 const VALID_IDS = BEACHES.map(b => b.id);
 const DAYS = ['יום א','יום ב','יום ג','יום ד','יום ה','יום ו','שבת'];
@@ -367,14 +375,15 @@ function renderFcTable(b, d7) {
     const windCls = wClass(d.mwd, b.offDir);
     const wlDir = WL[windCls];
 
+    const sl = surfLabel(d.mh);
     const midCol = isWind
       ? `<div class="fc-height fc-wind-dir">
            <span class="fc-cm" style="font-size:13px;">${d2cFull(d.mwd)}</span>
            <span class="fc-lbl" style="color:${wlDir.c};font-weight:700;">${wlDir.t}</span>
          </div>`
       : `<div class="fc-height">
-           <span class="fc-cm">${cmRangeD(d.minh, d.mh)}</span>
-           <span class="fc-lbl">${heightLabelD(d.mh)}</span>
+           <span class="fc-cm" style="color:${sl.color};font-size:16px;">${cmRangeD(d.minh, d.mh)}</span>
+           <span class="fc-lbl" style="color:${sl.color};opacity:.8;">${heightLabelD(d.mh)}</span>
          </div>`;
 
     return `<div class="fc-row" style="background:${rowBg};border-right:4px solid ${rowBdr};" data-action="open" data-id="${b.id}">
@@ -804,12 +813,45 @@ function selectSpot(id) {
 /* ══════════════════════════════════════
    ALERTS
 ══════════════════════════════════════ */
+
+// iOS PWA requires showNotification() via SW — new Notification() silently fails on iOS
+async function swNotify(title, body) {
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification(title, {
+        body, icon: './icon-192.png', badge: './favicon-32.png',
+        dir: 'rtl', lang: 'he'
+      });
+    } else {
+      new Notification(title, { body });
+    }
+  } catch(e) {
+    try { new Notification(title, { body }); } catch {}
+  }
+}
+
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
 async function enableAlerts(on) {
   if (!on) { cfg('alertsOn', false); el('alert-log').textContent='התראות כבויות.'; return false; }
-  if (!('Notification' in window)) { el('alert-log').textContent='הדפדפן לא תומך בהתראות.'; return false; }
+  if (!('Notification' in window)) {
+    el('alert-log').textContent='הדפדפן לא תומך בהתראות.';
+    return false;
+  }
+  // iOS requires PWA installed to Home Screen for notifications
+  if (isIOS && !isStandalone) {
+    el('alert-log').innerHTML='⚠️ כדי לקבל התראות ב-iPhone: לחץ <b>שתף ← הוסף למסך הבית</b> ופתח את האפליקציה משם.';
+    el('alert-toggle').checked = false;
+    return false;
+  }
   const perm = Notification.permission==='granted' ? 'granted' : await Notification.requestPermission();
-  if (perm !== 'granted') { el('alert-log').textContent='לא ניתן לשלוח התראות — יש לאשר בדפדפן.'; return false; }
-  cfg('alertsOn', true); el('alert-log').textContent='התראות פעילות!';
+  if (perm !== 'granted') {
+    el('alert-log').textContent='לא אושרו התראות. אפשר בהגדרות הטלפון ← Wavio.';
+    return false;
+  }
+  cfg('alertsOn', true); el('alert-log').textContent='✅ התראות פעילות!';
   return true;
 }
 
@@ -826,7 +868,7 @@ function checkAlert() {
       const key = `w-${b.id}-${good.time}-${S.cfg.alertH}`;
       if (key !== S.cfg.lastAlertKey) {
         cfg('lastAlertKey', key);
-        new Notification(`גלים ב${b.name}`, { body:`${fmtHD(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}` });
+        swNotify(`🌊 גלים ב${b.name}`, `${fmtHD(good.wh)} · ${WL[wClass(good.wd2||0, b.offDir)].t}`);
       }
     }
   }
@@ -838,7 +880,7 @@ function checkAlert() {
       const key = `wind-${b.id}-${good.time}-${S.cfg.windAlertSpeed}`;
       if (key !== (S.cfg.lastWindAlertKey||'')) {
         cfg('lastWindAlertKey', key);
-        new Notification(`רוח ב${b.name}`, { body:`${fmtWind(good.ws)} · ${windLbl(good.ws).lbl}` });
+        swNotify(`💨 רוח ב${b.name}`, `${fmtWind(good.ws)} · ${windLbl(good.ws).lbl}`);
       }
     }
   }
@@ -1072,7 +1114,7 @@ document.addEventListener('click', function(e) {
       break;
     }
     case 'testAlert': {
-      if (Notification.permission==='granted') new Notification('🌊 Wavio',{body:'ככה תיראה התראה כשיש גלים טובים!'});
+      if (Notification.permission==='granted') swNotify('🌊 Wavio', 'ככה תיראה התראה כשיש גלים טובים!');
       else el('alert-log').textContent='הפעל קודם את ההתראות למעלה.';
       break;
     }
