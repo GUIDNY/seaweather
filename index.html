@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" href="styles.css?v=16"/>
+  <link rel="stylesheet" href="styles.css?v=17"/>
 </head>
 <body>
 <script>
@@ -25,26 +25,46 @@ if ('serviceWorker' in navigator) {
     regs.forEach(function(r) { r.update(); });
   });
   caches.keys().then(function(keys) {
-    keys.filter(function(k) { return k !== 'ww-v20'; }).forEach(function(k) { caches.delete(k); });
+    keys.filter(function(k) { return k !== 'ww-v21'; }).forEach(function(k) { caches.delete(k); });
   });
 }
 </script>
 
 <header id="topbar">
   <div class="tb-inner">
-    <div class="tb-brand"><img src="fox.png" class="brand-logo" alt="Wavio"></div>
+    <div class="tb-brand">
+      <img src="fox.png" class="brand-logo" alt="Wavio">
+      <span class="tb-brand-name">Wavio</span>
+    </div>
     <nav class="tb-nav">
-      <button class="tnb active" data-action="tab" data-id="home">🏠 בית</button>
-      <button class="tnb" data-action="tab" data-id="beaches">🏖️ חופים</button>
-      <button class="tnb" data-action="tab" data-id="saved">⭐ שמורים</button>
-      <button class="tnb" data-action="tab" data-id="profile">👤 פרופיל</button>
+      <button class="tnb active" data-action="tab" data-id="home">
+        <svg class="tnb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-5h4v5h5V9.5"/></svg>
+        <span>בית</span>
+      </button>
+      <button class="tnb" data-action="tab" data-id="beaches">
+        <svg class="tnb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+        <span>חופים</span>
+      </button>
+      <button class="tnb" data-action="tab" data-id="saved">
+        <svg class="tnb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>שמורים</span>
+      </button>
+      <button class="tnb" data-action="tab" data-id="profile">
+        <svg class="tnb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span>פרופיל</span>
+      </button>
     </nav>
-    <button id="surf-mode-badge" class="surf-mode-badge" data-action="tab" data-id="profile" title="הפרופיל שלי">
-      <img id="smb-img" class="smb-img" src="" alt=""/>
-      <span id="smb-emoji" class="smb-emoji" style="display:none"></span>
-    </button>
-    <button class="unit-btn" data-action="toggleUnit">מטרים</button>
+    <div class="tb-actions">
+      <button id="surf-mode-badge" class="surf-mode-badge" data-action="tab" data-id="profile" title="הפרופיל שלי">
+        <img id="smb-img" class="smb-img" src="" alt=""/>
+        <span id="smb-emoji" class="smb-emoji" style="display:none"></span>
+      </button>
+      <button class="unit-btn" data-action="toggleUnit">מטרים</button>
+    </div>
   </div>
+  <svg class="tb-wave" viewBox="0 0 1440 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,9 C180,18 360,0 540,9 C720,18 900,0 1080,9 C1260,18 1380,5 1440,9 L1440,18 L0,18 Z" fill="#f0f7fb"/>
+  </svg>
 </header>
 
 <main id="main">
