@@ -176,16 +176,15 @@ function surfLabel(mh) {
   return               { lvl:3, emoji:'🔥', title:'מנוסים בלבד',         desc:'גלים גבוהים ועוצמתיים. מומלץ לגולשים מנוסים בלבד. יש לנקוט זהירות.',    color:'#06d6a0' };
 }
 
-// Display: always subtract 20cm; if result ≤ 20cm → "עד 20"
-function adjH(m) { return Math.max(0, m - 0.2); }
-function fmtHD(m)  { const a=adjH(m); return a<=0.2 ? 'עד 20ס"מ' : fmtH(a); }
-function fmtHND(m) { const a=adjH(m); return a<=0.2 ? (S.cfg.metric?'≤20':'≤0.7') : fmtHN(a); }
-function dispHFull(m) { const a=adjH(m); return a<=0.2 ? (S.cfg.metric?'עד 20ס"מ':'עד 0.7ft') : `${fmtHN(a)}${fmtU()}`; }
+function adjH(m) { return Math.max(0, m); }
+function fmtHD(m)  { return m<=0.2 ? 'עד 20ס"מ' : fmtH(m); }
+function fmtHND(m) { return m<=0.2 ? (S.cfg.metric?'≤20':'≤0.7') : fmtHN(m); }
+function dispHFull(m) { return m<=0.2 ? (S.cfg.metric?'עד 20ס"מ':'עד 0.7ft') : `${fmtHN(m)}${fmtU()}`; }
 function cmRangeD(minh,mh) {
-  const ah=adjH(mh); if(ah<=0.2) return 'עד 20ס"מ';
-  return cmRange(adjH(minh), ah);
+  if(mh<=0.2) return 'עד 20ס"מ';
+  return cmRange(minh, mh);
 }
-function heightLabelD(mh) { return heightLabel(adjH(mh)); }
+function heightLabelD(mh) { return heightLabel(mh); }
 
 function cmRange(minh, mh) {
   if (!S.cfg.metric) {

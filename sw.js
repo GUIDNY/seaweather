@@ -1,5 +1,5 @@
-const CACHE = 'ww-v16';
-const ASSETS = ['./', './index.html', './styles.css?v=14', './app.js?v=15', './manifest.json', './logo.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png', './fox-surf.png', './fox-wind.png', './fox.png'];
+const CACHE = 'ww-v17';
+const ASSETS = ['./', './index.html', './styles.css?v=14', './app.js?v=16', './manifest.json', './logo.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png', './fox-surf.png', './fox-wind.png', './fox.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
