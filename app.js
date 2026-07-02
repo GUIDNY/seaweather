@@ -33,11 +33,11 @@ const BEACHES = [
     desc:'החוף הצפוני ביותר בישראל, עם אווירה שקטה ורגועה. מים קרים יותר ורעננים, גלים מוכתבים על ידי הים התיכון הפתוח. מתאים לגולשי ים מנוסים ולאוהבי טבע.',
     tags:['🌊 גלים חופשיים','❄️ מים רעננים','🤫 שקט'] },
   { id:'tlv-gordon', name:'גורדון',  region:'תל אביב',   lat:32.0832, lon:34.7669, mark:'TLV', offDir:90,
-    photo:'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=1200&q=85',
+    photo:'https://upload.wikimedia.org/wikipedia/commons/5/5f/Israel-04591_-_Gordon_Beach_%2832820446774%29.jpg',
     desc:'חוף גורדון הוא הסמל של חוף תל אביב — שוקק חיים, צבעוני ומלא אנרגיה. ליד מתחם הנמל ופרומנד ארוך. מים ים-תיכוניים נעימים, גלים קטנים-בינוניים, מתאים לכולם.',
     tags:['🌆 עירוני','🏄 לכולם','☀️ טיילת ארוכה'] },
   { id:'tlv-hilton', name:'הילטון',  region:'תל אביב',   lat:32.0899, lon:34.7685, mark:'HLT', offDir:90,
-    photo:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=85',
+    photo:'https://upload.wikimedia.org/wikipedia/commons/d/df/Hilton_Beach_-_Tel_Aviv_%288%29_%285365346388%29.jpg',
     desc:'חוף הילטון — החוף הצפוני של תל אביב, ידוע בגלים הטובים ביותר בעיר. חוף גלשנים מסורתי, מגנט לגולשים ולכלבים. פחות עמוס ממרכז העיר, עם גלים עקביים מהצפון.',
     tags:['🏄 גלשנים','🐕 חוף כלבים','🌊 גלים טובים'] },
 ];
