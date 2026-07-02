@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" href="styles.css?v=15"/>
+  <link rel="stylesheet" href="styles.css?v=16"/>
 </head>
 <body>
 <script>
@@ -25,7 +25,7 @@ if ('serviceWorker' in navigator) {
     regs.forEach(function(r) { r.update(); });
   });
   caches.keys().then(function(keys) {
-    keys.filter(function(k) { return k !== 'ww-v19'; }).forEach(function(k) { caches.delete(k); });
+    keys.filter(function(k) { return k !== 'ww-v20'; }).forEach(function(k) { caches.delete(k); });
   });
 }
 </script>
@@ -52,6 +52,7 @@ if ('serviceWorker' in navigator) {
   <!-- ══ HOME ══ -->
   <div id="tab-home" class="tab active">
     <!-- Selected beach forecast -->
+    <div class="home-hero-wrap">
     <div id="home-hero" class="home-hero">
       <img id="hero-img" src="" alt=""/>
       <div class="hero-ov"></div>
@@ -64,6 +65,7 @@ if ('serviceWorker' in navigator) {
         <div id="hero-ring" class="ring-wrap large"></div>
       </div>
     </div>
+    </div><!-- /home-hero-wrap -->
 
     <!-- Now stats -->
     <div class="container">
