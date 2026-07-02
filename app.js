@@ -4,13 +4,34 @@
    DATA
 ══════════════════════════════════════ */
 const BEACHES = [
-  { id:'eilat',    name:'אילת',   region:'ים סוף',     lat:29.5581, lon:34.9482, mark:'ELT', offDir:270, photo:'https://upload.wikimedia.org/wikipedia/commons/c/ce/North_Beach_Eilat.jpg' },
-  { id:'caesarea', name:'קיסריה', region:'חוף הכרמל',  lat:32.5000, lon:34.8917, mark:'CSR', offDir:90,  photo:'https://upload.wikimedia.org/wikipedia/commons/5/5e/The_high_level_aqueduct_of_Caesarea_built_by_Herod_%2837BC_to_4BC%29%2C_Caesarea_Maritima%2C_Israel_%2815588710799%29.jpg' },
-  { id:'netanya',  name:'נתניה',  region:'השרון',       lat:32.3215, lon:34.8532, mark:'NTY', offDir:90,  photo:'https://upload.wikimedia.org/wikipedia/commons/2/2b/PikiWiki_Israel_17539_Netanya_sironit_beach.JPG' },
-  { id:'haifa',    name:'חיפה',   region:'מפרץ חיפה',   lat:32.8056, lon:34.9658, mark:'HFA', offDir:90,  photo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/South_Dado_Beach_-_Hof_HaCarmel_-_Haifa_%281506044661%29.jpg' },
-  { id:'ashdod',   name:'אשדוד',  region:'חוף השפלה',  lat:31.8044, lon:34.6553, mark:'ASH', offDir:90,  photo:'https://upload.wikimedia.org/wikipedia/commons/1/14/Ashdod_Beach.jpg' },
-  { id:'ashkelon', name:'אשקלון', region:'חוף השפלה',  lat:31.6688, lon:34.5571, mark:'AKL', offDir:90,  photo:'https://upload.wikimedia.org/wikipedia/commons/f/f5/PikiWiki_Israel_53637_the_beach_promenade_in_ashkelon.jpg' },
-  { id:'nahariya', name:'נהריה',  region:'חוף הצפון',  lat:33.0067, lon:35.0975, mark:'NHR', offDir:90,  photo:'https://upload.wikimedia.org/wikipedia/commons/b/ba/Beach_-_Nahariya_Israel_%281370405741%29.jpg' },
+  { id:'eilat',    name:'אילת',   region:'ים סוף',     lat:29.5581, lon:34.9482, mark:'ELT', offDir:270,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/c/ce/North_Beach_Eilat.jpg',
+    desc:'מפרץ ים סוף עם מים כחולים-ירוקים שקופים לגמרי. שוניות אלמוגים, דגים טרופיים וצבאים ים — אחד מאתרי הצלילה הטובים בעולם. רוח צפונית עקבית בשעות הצהריים הופכת את אילת לגן עדן לגולשי רוח.',
+    tags:['🤿 צלילה','🪁 ווינד','☀️ שמש כל השנה'] },
+  { id:'caesarea', name:'קיסריה', region:'חוף הכרמל',  lat:32.5000, lon:34.8917, mark:'CSR', offDir:90,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/5/5e/The_high_level_aqueduct_of_Caesarea_built_by_Herod_%2837BC_to_4BC%29%2C_Caesarea_Maritima%2C_Israel_%2815588710799%29.jpg',
+    desc:'חוף ים-תיכוני רגוע הסמוך לעיר הרומית העתיקה ולאמפיתאטרון ההיסטורי. מים תכולים ונקיים, גלים בינוניים ושפת ים חולית רחבה. מתאים לכל הגילאים ולסאפ-בורד.',
+    tags:['🏛️ היסטורי','🏄 סאפ','🌊 גלים נוחים'] },
+  { id:'netanya',  name:'נתניה',  region:'השרון',       lat:32.3215, lon:34.8532, mark:'NTY', offDir:90,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/2/2b/PikiWiki_Israel_17539_Netanya_sironit_beach.JPG',
+    desc:'חוף עירוני ארוך ומגוון עם טיילת מפורסמת ומעלית לים. גלים ים-תיכוניים טובים למתחילים, מתקני ספורט ים מסודרים ופרומנד עמוס בקיץ.',
+    tags:['🌊 גלים','🏄 למתחילים','🛗 מעלית לחוף'] },
+  { id:'haifa',    name:'חיפה',   region:'מפרץ חיפה',   lat:32.8056, lon:34.9658, mark:'HFA', offDir:90,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/1/1d/South_Dado_Beach_-_Hof_HaCarmel_-_Haifa_%281506044661%29.jpg',
+    desc:'חוף דדו הידוע — שוקק חיים עם שירותים מלאים, נוף להר הכרמל ולמפרץ. גלים טובים ורוח ים-תיכונית אמינה בשעות אחה"צ, אידיאלי לווינד-סרף ולגלישה.',
+    tags:['🪁 ווינד','🏔️ נוף לכרמל','🎯 תשתיות'] },
+  { id:'ashdod',   name:'אשדוד',  region:'חוף השפלה',  lat:31.8044, lon:34.6553, mark:'ASH', offDir:90,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/1/14/Ashdod_Beach.jpg',
+    desc:'חוף נרחב ופתוח עם מים נוחים לרחצה. ידוע ברוח ים טובה וגלים קטנים-בינוניים המתאימים לסאפ-בורד, גלשן גדול ולמשפחות עם ילדים.',
+    tags:['🏄 סאפ','👨‍👩‍👧 משפחות','💨 רוח טובה'] },
+  { id:'ashkelon', name:'אשקלון', region:'חוף השפלה',  lat:31.6688, lon:34.5571, mark:'AKL', offDir:90,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/f/f5/PikiWiki_Israel_53637_the_beach_promenade_in_ashkelon.jpg',
+    desc:'חוף פראי ויפהפה הגובל בפארק הלאומי. גלים ים-תיכוניים עקביים ומים נקיים, תחושה של חוף ירוק ורחב ידיים. מקום מושלם לבריחה מהעיר.',
+    tags:['🌿 פארק','🌊 גלים עקביים','🏖️ חוף פראי'] },
+  { id:'nahariya', name:'נהריה',  region:'חוף הצפון',  lat:33.0067, lon:35.0975, mark:'NHR', offDir:90,
+    photo:'https://upload.wikimedia.org/wikipedia/commons/b/ba/Beach_-_Nahariya_Israel_%281370405741%29.jpg',
+    desc:'החוף הצפוני ביותר בישראל, עם אווירה שקטה ורגועה. מים קרים יותר ורעננים, גלים מוכתבים על ידי הים התיכון הפתוח. מתאים לגולשי ים מנוסים ולאוהבי טבע.',
+    tags:['🌊 גלים חופשיים','❄️ מים רעננים','🤫 שקט'] },
 ];
 const VALID_IDS = BEACHES.map(b => b.id);
 const DAYS = ['יום א','יום ב','יום ג','יום ד','יום ה','יום ו','שבת'];
@@ -378,28 +399,28 @@ function renderFcTable(b, d7) {
 function renderHomeBeachList() {
   const list = el('home-beach-list');
   list.innerHTML = BEACHES.map(b => `
-    <div class="bl-item" data-action="open" data-id="${b.id}">
-      <div class="bl-thumb"><img src="${b.photo}" alt="${b.name}" loading="lazy" onerror="this.style.display='none'"></div>
-      <div class="bl-info">
-        <div class="bl-name">${b.name}</div>
-        <div class="bl-region">${b.region}</div>
-        <div id="bl-stat-${b.id}" class="bl-stats">טוען...</div>
+    <div class="bcard" data-action="open" data-id="${b.id}">
+      <div class="bcard-img-wrap">
+        <img src="${b.photo}" alt="${b.name}" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#0077b6,#00b4d8)';this.style.display='block'">
+        <div class="bcard-ov"></div>
+        <div id="bcard-ring-${b.id}" class="bcard-ring"></div>
       </div>
-      <div class="bl-right">
-        <div id="bl-ring-${b.id}" class="ring-wrap" style="width:40px;height:40px;"></div>
-        <div id="bl-cond-${b.id}" class="bl-cond"></div>
+      <div class="bcard-body">
+        <div class="bcard-name">${b.name}</div>
+        <div class="bcard-region">${b.region}</div>
+        <div id="bcard-stat-${b.id}" class="bcard-stat">
+          <span class="bcard-skel"></span>
+        </div>
       </div>
     </div>`).join('');
 
-  // load each beach async
   BEACHES.forEach(async b => {
     try {
       const data = await fetchBeach(b);
       const cur = data.cur, sc = cur.sc, col = scoreColor(sc);
-      const sr = el(`bl-stat-${b.id}`), rg = el(`bl-ring-${b.id}`), cd = el(`bl-cond-${b.id}`);
-      if (sr) sr.textContent = `🌊 ${dispHFull(cur.wh)} · 💨 ${fmtWind(cur.ws)}`;
-      if (rg) rg.innerHTML = ring(sc,40,4,col) + `<div class="ring-num" style="font-size:12px;color:${col};">${sc.toFixed(1)}</div>`;
-      if (cd) { cd.textContent = scoreLbl(sc); cd.style.color = col; cd.style.fontWeight = '800'; cd.style.fontSize = '11px'; }
+      const rg = el(`bcard-ring-${b.id}`), st = el(`bcard-stat-${b.id}`);
+      if (rg) rg.innerHTML = ring(sc,44,4,col) + `<div class="ring-num" style="font-size:13px;color:${col};">${sc.toFixed(1)}</div>`;
+      if (st) st.innerHTML = `<span style="color:${col};font-weight:800;font-size:12px;">${scoreLbl(sc)}</span><span class="bcard-sep">·</span><span style="font-size:11px;color:rgba(255,255,255,.8);">${dispHFull(cur.wh)}</span>`;
     } catch {}
   });
 }
@@ -597,33 +618,46 @@ function renderDetail(b, data) {
   const cls = wClass(cur.wd2, b.offDir), wl = WL[cls];
   const td = tide(b.id.length + b.lat);
   const saved = S.cfg.savedIds.includes(b.id);
+  const isWind = S.cfg.surfType === 'wind';
+  const sl = surfLabel(cur.wh);
+  const tags = (b.tags||[]).map(t=>`<span class="d-tag">${t}</span>`).join('');
 
   el('detail-inner').innerHTML = `
     <div class="d-hero">
       <img src="${b.photo}" alt="${b.name}" onerror="this.style.background='linear-gradient(135deg,#0077b6,#00b4d8)'">
       <div class="d-hero-ov"></div>
       <div class="d-hero-top">
-        <button class="d-fab" data-action="closeDetail">←</button>
+        <button class="d-fab" data-action="closeDetail">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
         <button class="d-fab" id="d-save" data-action="toggleSave" data-id="${b.id}">${saved?'⭐':'☆'}</button>
       </div>
       <div class="d-hero-btm">
         <div>
+          <div class="d-region-badge">${b.region}</div>
           <div class="d-title">${b.name}</div>
-          <div class="d-sub">${b.region} · ${cur.temp.toFixed(0)}°C · ${d2c(cur.wd)}</div>
+          <div class="d-tags-row">${tags}</div>
         </div>
-        <div class="ring-wrap large">${ring(sc,78,7,col)}<div class="ring-num large" style="color:${col};">${sc.toFixed(1)}</div></div>
+        <div class="d-ring-wrap">
+          <div class="ring-wrap large">${ring(sc,82,7,col)}<div class="ring-num large" style="color:${col};">${sc.toFixed(1)}</div></div>
+          <div class="d-ring-lbl" style="color:${col};">${scoreLbl(sc)}</div>
+        </div>
       </div>
     </div>
 
-    <div class="d-body">
-      <div style="margin-bottom:14px;">
-        <span style="background:${col}22;color:${col};padding:5px 14px;border-radius:20px;font-size:14px;font-weight:800;">${scoreLbl(sc)} ${S.cfg.surfType==='wind'?'לוינד':'לגלישה'}</span>
+    <div class="d-cond-banner" style="border-right:4px solid ${col};background:${col}12;">
+      <div class="d-cond-left">
+        <span class="d-cond-pill" style="background:${col};color:#fff;">${isWind ? windLbl(cur.ws).lbl : sl.title}</span>
+        <span class="d-cond-desc">${isWind ? `${fmtWind(cur.ws)} · ${wl.t}` : sl.desc}</span>
       </div>
+      <div class="d-cond-meta">${cur.temp.toFixed(0)}°C · ${d2c(cur.wd2)}</div>
+    </div>
 
+    <div class="d-body">
       <div class="stat-grid">
-        <div class="stat-card">
-          <span class="stat-label">🌊 גובה גלים</span>
-          <span class="stat-val">${fmtHD(cur.wh)}</span>
+        <div class="stat-card stat-card-accent" style="--ac:${col}">
+          <span class="stat-label">🌊 גלים עכשיו</span>
+          <span class="stat-val" style="color:${col}">${fmtHD(cur.wh)}</span>
           <span class="stat-sub">תקופה ${cur.wp.toFixed(1)} שנ׳</span>
         </div>
         <div class="stat-card">
@@ -654,19 +688,35 @@ function renderDetail(b, data) {
         <canvas id="d-chart" height="140"></canvas>
       </div>
 
-      <div style="font-size:15px;font-weight:800;margin-bottom:10px;">תחזית 7 ימים</div>
+      <div class="d-week-hd"><span class="micro">Forecast</span><div class="d-week-title">תחזית 7 ימים</div></div>
       <div class="outlook-box">
-        ${data.d7.map(d => {
+        ${data.d7.map((d,i) => {
           const c=scoreColor(d.sc);
-          return `<div class="ol-row">
-            <span class="ol-day">${dayLabel(d.date)}</span>
-            <span class="ol-dot" style="background:${c};"></span>
-            <div class="ol-bar"><i style="width:${clamp(d.sc/10,0,1)*100}%;background:${c};"></i></div>
-            <span class="ol-ht">${dispHFull(d.mh)}</span>
-            <span class="score-chip" style="background:${c}22;color:${c};">${d.sc.toFixed(1)}</span>
+          const isToday = i===0;
+          return `<div class="ol-row ${isToday?'ol-today':''}">
+            <div class="ol-day-col">
+              <span class="ol-day">${dayLabel(d.date)}</span>
+              ${isToday?`<span class="ol-today-badge">היום</span>`:''}
+            </div>
+            <div class="ol-center">
+              <div class="ol-bar-wrap">
+                <div class="ol-bar"><i style="width:${clamp(d.sc/10,0,1)*100}%;background:${c};"></i></div>
+              </div>
+              <span class="ol-ht">${cmRangeD(d.minh,d.mh)}</span>
+            </div>
+            <span class="score-chip" style="background:${c}22;color:${c};min-width:34px;text-align:center;">${d.sc.toFixed(1)}</span>
           </div>`;
         }).join('')}
       </div>
+
+      ${b.desc ? `
+      <div class="d-about">
+        <div class="d-about-hd">
+          <span class="micro">על החוף</span>
+          <div class="d-about-title">${b.name}</div>
+        </div>
+        <p class="d-about-text">${b.desc}</p>
+      </div>` : ''}
     </div>`;
 
   renderDetailChart(data);
