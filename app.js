@@ -204,11 +204,21 @@ async function fetchBeach(b) {
   const key = `${b.lat},${b.lon}`;
   if (S.cache[key] && Date.now()-S.cache[key].t < 600000) return S.cache[key].d;
 
-  const [mr, fr] = await Promise.all([
-    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${b.lat}&longitude=${b.lon}&hourly=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,wind_wave_height&timezone=auto&forecast_days=7`),
+  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${b.lat}&longitude=${b.lon}&hourly=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,wind_wave_height&timezone=auto&forecast_days=7`;
+  const [mr, mre, fr] = await Promise.all([
+    fetch(marineUrl),
+    fetch(marineUrl + '&models=ewam').catch(() => null),
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}&hourly=wind_speed_10m,wind_direction_10m,temperature_2m&current=temperature_2m,wind_speed_10m,wind_direction_10m&timezone=auto&forecast_days=7`)
   ]);
-  const [m, f] = await Promise.all([mr.json(), fr.json()]);
+  const [m, me, f] = await Promise.all([mr.json(), mre ? mre.json().catch(()=>null) : Promise.resolve(null), fr.json()]);
+
+  // DWD EWAM: accurate European/Mediterranean model (3-day). Merge over GFS for days 1-3.
+  const ewWH  = me?.hourly?.wave_height   || [];
+  const ewWP  = me?.hourly?.wave_period   || [];
+  const ewSWH = me?.hourly?.swell_wave_height || [];
+  const mWH  = i => ewWH[i]  ?? m.hourly.wave_height[i]  ?? 0;
+  const mWP  = i => ewWP[i]  ?? m.hourly.wave_period[i]  ?? 0;
+  const mSWH = i => ewSWH[i] ?? m.hourly.swell_wave_height?.[i] ?? 0;
 
   const times = m.hourly.time;
   const now = new Date();
@@ -217,7 +227,7 @@ async function fetchBeach(b) {
 
   const h24 = [];
   for (let i=ni; i<Math.min(ni+24,times.length); i++) {
-    h24.push({ time:times[i], wh:m.hourly.wave_height[i]??0, wp:m.hourly.wave_period[i]??0, wd:m.hourly.wave_direction[i]??0, ws:f.hourly.wind_speed_10m[i]??0, wd2:f.hourly.wind_direction_10m[i]??0, swh:m.hourly.swell_wave_height?.[i]??0, swp:m.hourly.swell_wave_period?.[i]??0, wwh:m.hourly.wind_wave_height?.[i]??0 });
+    h24.push({ time:times[i], wh:mWH(i), wp:mWP(i), wd:m.hourly.wave_direction[i]??0, ws:f.hourly.wind_speed_10m[i]??0, wd2:f.hourly.wind_direction_10m[i]??0, swh:mSWH(i), swp:m.hourly.swell_wave_period?.[i]??0, wwh:m.hourly.wind_wave_height?.[i]??0 });
   }
 
   // group by day
@@ -230,9 +240,9 @@ async function fetchBeach(b) {
   const d7 = [...dm.entries()].slice(0,7).map(([dk,ix]) => {
     let mh=0, minh=Infinity, mp=0, mw=0, mwd=0, swh=0, swp=0, wwh=0;
     ix.forEach(i => {
-      const wh=m.hourly.wave_height[i]??0, ws=f.hourly.wind_speed_10m[i]??0;
+      const wh=mWH(i), ws=f.hourly.wind_speed_10m[i]??0;
       if(wh>0 && wh<minh) minh=wh;
-      if(wh>mh){mh=wh;mp=m.hourly.wave_period[i]??0;swh=m.hourly.swell_wave_height?.[i]??0;swp=m.hourly.swell_wave_period?.[i]??0;wwh=m.hourly.wind_wave_height?.[i]??0;}
+      if(wh>mh){mh=wh;mp=mWP(i);swh=mSWH(i);swp=m.hourly.swell_wave_period?.[i]??0;wwh=m.hourly.wind_wave_height?.[i]??0;}
       if(ws>mw){mw=ws;mwd=f.hourly.wind_direction_10m[i]??0;}
     });
     if(minh===Infinity) minh=0;
@@ -240,7 +250,7 @@ async function fetchBeach(b) {
   });
 
   const cur = {
-    wh:m.hourly.wave_height[ni]??0, wp:m.hourly.wave_period[ni]??0, wd:m.hourly.wave_direction[ni]??0, swh:m.hourly.swell_wave_height?.[ni]??0, swp:m.hourly.swell_wave_period?.[ni]??0, wwh:m.hourly.wind_wave_height?.[ni]??0,
+    wh:mWH(ni), wp:mWP(ni), wd:m.hourly.wave_direction[ni]??0, swh:mSWH(ni), swp:m.hourly.swell_wave_period?.[ni]??0, wwh:m.hourly.wind_wave_height?.[ni]??0,
     ws:f.current?.wind_speed_10m??f.hourly.wind_speed_10m[ni]??0,
     wd2:f.current?.wind_direction_10m??f.hourly.wind_direction_10m[ni]??0,
     temp:f.current?.temperature_2m??f.hourly.temperature_2m[ni]??0,
